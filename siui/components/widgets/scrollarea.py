@@ -1,9 +1,11 @@
-from siui.core.animation import SiExpAnimation
-from siui.core.globals import SiGlobal
+from siui.components.widgets.abstracts.widget import SiWidget
 from siui.components.widgets.label import SiDraggableLabel, SiLabel
+from siui.core import Si
+from siui.core import SiExpAccelerateAnimation
+from siui.core import SiGlobal
 
 
-class SiScrollArea(SiLabel):
+class SiScrollArea(SiWidget):
     """
     滚动区域
     """
@@ -20,23 +22,23 @@ class SiScrollArea(SiLabel):
         # 定义滚动条
         self.scroll_bar_vertical = SiDraggableLabel(self.scroll_bar_frame_vertical)
         self.scroll_bar_vertical.setFixedStyleSheet("border-radius: 4px")  # 固定样式表
-        self.scroll_bar_vertical.setUseSignals(True)
+        self.scroll_bar_vertical.setSiliconWidgetFlag(Si.EnableAnimationSignals)
         self.scroll_bar_vertical.dragged.connect(self._scroll_vertical_handler)
 
         self.scroll_bar_horizontal = SiDraggableLabel(self.scroll_bar_frame_horizontal)
         self.scroll_bar_horizontal.setFixedStyleSheet("border-radius: 4px")  # 固定样式表
-        self.scroll_bar_horizontal.setUseSignals(True)
+        self.scroll_bar_horizontal.setSiliconWidgetFlag(Si.EnableAnimationSignals)
         self.scroll_bar_horizontal.dragged.connect(self._scroll_horizontal_handler)
 
         # 定义滚动动画，为了让所有控件都能用上滚动动画
-        self.widget_scroll_animation = SiExpAnimation(self)
-        self.widget_scroll_animation.setFactor(1/6)
+        self.widget_scroll_animation = SiExpAccelerateAnimation(self)
+        self.widget_scroll_animation.setFactor(1/9)
         self.widget_scroll_animation.setBias(1)
         self.widget_scroll_animation.setCurrent([0, 0])
         self.widget_scroll_animation.setTarget([0, 0])
         self.widget_scroll_animation.ticked.connect(lambda pos: self.attachment_.move(int(pos[0]), int(pos[1])))
 
-        self.getAnimationGroup().addMember(self.widget_scroll_animation, "scroll")
+        self.animationGroup().addMember(self.widget_scroll_animation, "scroll")
 
     def reloadStyleSheet(self):
         """
@@ -73,8 +75,14 @@ class SiScrollArea(SiLabel):
         target = - int(progress * (self.attachment_.height() - self.height()))
 
         # 设置目标值并尝试启动
+        # 2024.8.24  直接使用 move，以提高拖动滚动条时的操作体验
+        self.widget_scroll_animation.stop()
+        self.widget_scroll_animation.setCurrent([self.attachment_.x(), target])
         self.widget_scroll_animation.setTarget([self.attachment_.x(), target])
-        self.widget_scroll_animation.try_to_start()
+        self.attachment_.move(self.attachment_.x(), target)
+
+        # self.widget_scroll_animation.setTarget([self.attachment_.x(), target])
+        # self.widget_scroll_animation.try_to_start()
 
     def _scroll_horizontal_handler(self, pos):
         # 计算目标横坐标
@@ -83,8 +91,14 @@ class SiScrollArea(SiLabel):
         target = - int(progress * (self.attachment_.width() - self.width()))
 
         # 设置目标值并尝试启动
+        # 2024.8.24  直接使用 move，以提高拖动滚动条时的操作体验
+        self.widget_scroll_animation.stop()
+        self.widget_scroll_animation.setCurrent([target, self.attachment_.y()])
         self.widget_scroll_animation.setTarget([target, self.attachment_.y()])
-        self.widget_scroll_animation.try_to_start()
+        self.attachment_.move(target, self.attachment_.y())
+
+        # self.widget_scroll_animation.setTarget([target, self.attachment_.y()])
+        # self.widget_scroll_animation.try_to_start()
 
     def resizeEvent(self, event):
         # 注意：滚动区域并不会改变子控件的大小，适应需要重写父级的resizeEvent
@@ -93,6 +107,10 @@ class SiScrollArea(SiLabel):
         # 重设框架的尺寸
         self.scroll_bar_frame_vertical.setGeometry(self.width() - 8, 0, 8, self.height())
         self.scroll_bar_frame_horizontal.setGeometry(0, self.height() - 8, self.width(), 8)
+
+        # 根据滚动区域的大小和子控件的大小，计算出滚动条的长度或宽度
+        self.scroll_bar_horizontal.resize(self.width() * self.width() // self.attachment_.width(), 8)
+        self.scroll_bar_vertical.resize(8, self.height() * self.height() // self.attachment_.height())
 
         # 判断长宽是否超过自身的长宽，从而确定是否显示滚动条
         # 水平
@@ -106,10 +124,6 @@ class SiScrollArea(SiLabel):
             self.scroll_bar_vertical.setVisible(False)
         else:
             self.scroll_bar_vertical.setVisible(True)
-
-        # 根据滚动区域的大小和子控件的大小，计算出滚动条的长度或宽度
-        self.scroll_bar_horizontal.resize(self.width() * self.width() // self.attachment_.width(), 8)
-        self.scroll_bar_vertical.resize(8, self.height() * self.height() // self.attachment_.height())
 
         # 设置拖动限制
         self.scroll_bar_horizontal.setMoveLimits(0, 0, self.width(), 8)

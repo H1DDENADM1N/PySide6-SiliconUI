@@ -1,29 +1,24 @@
 from PySide6.QtCore import Qt
 
-from siui.components.widgets.container import SiDenseVContainer, SiDenseHContainer
+from siui.components.widgets.container import SiDenseHContainer, SiDenseVContainer
 from siui.components.widgets.label import SiLabel
 from siui.components.widgets.scrollarea import SiScrollArea
-from siui.core.globals import SiGlobal
+from siui.core import SiGlobal, GlobalFont
+from siui.core import Si
+from siui.gui import SiFont
 
 
 class SiPage(SiDenseVContainer):
-    """
-    页面类，实例化后作为 SiliconApplication 中的单个页面
-    """
+    """ 页面类，实例化后作为 SiliconApplication 中的单个页面 """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setSpacing(0)
-        self.setUseSignals(True)
+        self.setSiliconWidgetFlag(Si.EnableAnimationSignals)
 
-        # 滚动区域宽度限制
-        self.scroll_maximum_width = 10000
-
-        # 标题引入的高度偏移，内容的高度要减去标题的高度
-        self.title_height = 0
-
-        # 左右空白区域的宽度
-        self.padding = 0
+        self.scroll_maximum_width = 10000   # 滚动区域宽度限制
+        self.title_height = 0               # 标题引入的高度偏移，内容的高度要减去标题的高度
+        self.padding = 0                    # 左右空白区域的宽度
 
         # 滚动区域对齐方式
         self.scroll_alignment = Qt.AlignCenter
@@ -36,23 +31,17 @@ class SiPage(SiDenseVContainer):
         self.addWidget(self.scroll_area)
 
     def setAttachment(self, widget):
-        """
-        设置子控件
-        :param widget: 子控件
-        """
+        """ 设置子控件 """
         self.scroll_area.setAttachment(widget)
 
     def attachment(self):
-        """
-        获取子控件
-        """
+        """ 获取子控件 """
         return self.scroll_area.attachment()
 
     def setScrollMaximumWidth(self, width: int):
         """
         设置滚动区域的子控件的最大宽度
         :param width: 最大宽度
-        :return:
         """
         self.scroll_maximum_width = width
         self.resize(self.size())
@@ -62,8 +51,6 @@ class SiPage(SiDenseVContainer):
         设置滚动区域的对齐方式
         :param a0: Qt 枚举值
         """
-        if a0 not in [Qt.AlignCenter, Qt.AlignLeft, Qt.AlignRight]:
-            raise ValueError(f"Invalid alignment value: {a0}")
         self.scroll_alignment = a0
         self.resize(self.size())
 
@@ -84,17 +71,17 @@ class SiPage(SiDenseVContainer):
         self.title_container = SiDenseHContainer(self)
         self.title_container.setSpacing(0)
         self.title_container.setFixedHeight(32)
-        self.title_container.setAlignCenter(True)
+        self.title_container.setAlignment(Qt.AlignCenter)
 
         # 标题
         self.title = SiLabel(self)
-        self.title.setFont(SiGlobal.siui.fonts["L_BOLD"])
+        self.title.setFont(SiFont.tokenized(GlobalFont.L_BOLD))
         self.title.setFixedHeight(32)
+        self.title.setContentsMargins(64, 0, 0, 0)
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        self.title.setAutoAdjustSize(True)
+        self.title.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
         # 添加到水平容器
-        self.title_container.addPlaceholder(64)
         self.title_container.addWidget(self.title)
 
         self.title.setText(title)
@@ -118,11 +105,11 @@ class SiPage(SiDenseVContainer):
         self.scroll_area.attachment().setFixedWidth(min(size.width() - self.padding * 2, self.scroll_maximum_width))
 
         # 处理对齐
-        if self.scroll_alignment == Qt.AlignCenter:
+        if (self.scroll_alignment & Qt.AlignHCenter) == Qt.AlignHCenter:
             scroll_widget_x = (size.width() - self.scroll_area.attachment().width())//2
-        elif self.scroll_alignment == Qt.AlignLeft:
+        elif (self.scroll_alignment & Qt.AlignLeft) == Qt.AlignLeft:
             scroll_widget_x = self.padding
-        elif self.scroll_alignment == Qt.AlignRight:
+        elif (self.scroll_alignment & Qt.AlignRight) == Qt.AlignRight:
             scroll_widget_x = size.width() - self.scroll_area.attachment().width() - self.padding
         else:
             raise ValueError(f"Invalid alignment value: {self.scroll_alignment}")
@@ -130,5 +117,5 @@ class SiPage(SiDenseVContainer):
         scroll_widget_y = self.scroll_area.attachment().y()
 
         self.scroll_area.attachment().move(scroll_widget_x, scroll_widget_y)
-        self.scroll_area.getAnimationGroup().fromToken("scroll").setTarget([scroll_widget_x, scroll_widget_y])
-        self.scroll_area.getAnimationGroup().fromToken("scroll").setCurrent([scroll_widget_x, scroll_widget_y])
+        self.scroll_area.animationGroup().fromToken("scroll").setTarget([scroll_widget_x, scroll_widget_y])
+        self.scroll_area.animationGroup().fromToken("scroll").setCurrent([scroll_widget_x, scroll_widget_y])

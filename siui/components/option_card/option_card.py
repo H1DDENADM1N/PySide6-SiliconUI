@@ -1,19 +1,19 @@
 from PySide6.QtCore import Qt
 
-from siui.components.option_card.abstracts import ABCSiOptionCardPlane
-from siui.core.globals import SiGlobal
+from siui.components.option_card.abstracts.option_card import ABCSiOptionCardPlane
+from siui.components.widgets.abstracts.widget import SiWidget
 from siui.components.widgets.container import SiDenseHContainer
 from siui.components.widgets.label import SiLabel, SiSvgLabel
+from siui.core import GlobalFont, Si, SiGlobal
+from siui.gui import SiFont
 
 
-class SiOptionCardLinear(SiLabel):
-    """
-    水平方向上的、线性放置控件的选项卡组件
-    """
+class SiOptionCardLinear(SiWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.setFixedStyleSheet("background-color:{};border-radius:4px".format(SiGlobal.siui.colors["INTERFACE_BG_C"]))
+        self.panel = SiLabel(self)
+        self.panel.setFixedStyleSheet(f"background-color:{SiGlobal.siui.colors['INTERFACE_BG_C']}; border-radius:4px")
 
         # 设定最小高度
         self.setMinimumHeight(80)
@@ -21,9 +21,8 @@ class SiOptionCardLinear(SiLabel):
         # 创建整体容器
         self.container = SiDenseHContainer(self)
         self.container.setSpacing(0)
-        self.container.setAlignCenter(True)
+        self.container.setAlignment(Qt.AlignCenter)
         self.container.setAdjustWidgetsSize(True)
-        self.container.setShrinking(True)
 
         # 开始从左到右构建所需控件
         # svg图标
@@ -33,12 +32,12 @@ class SiOptionCardLinear(SiLabel):
 
         # 文字标签
         self.text_label = SiLabel(self)
-        self.text_label.setAutoAdjustSize(True)
+        self.text_label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
         self.text_label.setFixedStyleSheet("padding-top: 20px; padding-bottom: 20px;")
 
         # 控件紧密排列容器
         self.widgets_container = SiDenseHContainer(self)
-        self.widgets_container.setAlignCenter(True)
+        self.widgets_container.setAlignment(Qt.AlignCenter)
         self.widgets_container.resize(0, 0)
 
         # 添加到整体容器中
@@ -90,6 +89,7 @@ class SiOptionCardLinear(SiLabel):
         self.widgets_container.addWidget(widget, "right")
 
     def adjustSize(self):
+        self.container.resize(self.container.width(), self.text_label.height())
         self.container.adjustSize()
         self.resize(self.container.size())
 
@@ -97,6 +97,7 @@ class SiOptionCardLinear(SiLabel):
         super().resizeEvent(event)
         w, h = event.size().width(), event.size().height()
 
+        self.panel.resize(w, h)
         self.container.resize(w, h)
 
         # 让文字标签充满闲置区域
@@ -116,12 +117,12 @@ class SiOptionCardPlane(ABCSiOptionCardPlane):
 
         # 在 header 创建标题
         self.title = SiLabel(self)
-        self.title.setAutoAdjustSize(True)
-        self.title.setFont(SiGlobal.siui.fonts["M_BOLD"])
+        self.title.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
+        self.title.setFont(SiFont.tokenized(GlobalFont.M_BOLD))
         self.title.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self.title.setFixedHeight(32)
 
-        self.header().setAlignCenter(True)
+        self.header().setAlignment(Qt.AlignCenter)
         self.header().setFixedHeight(64)
         self.header().addWidget(self.title, "left")
 
