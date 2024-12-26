@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import math
-import random
 from dataclasses import dataclass
-from functools import lru_cache
 
 import numpy
-from PyQt5 import Qt
-from PyQt5.QtCore import QEvent, QPointF, QRect, QRectF
-from PyQt5.QtGui import QColor, QPainter, QPainterPath
-from PyQt5.QtWidgets import QLabel, QWidget
+from PySide6.QtCore import QEvent, QPointF, QRect
+from PySide6.QtGui import QColor, QPainter, QPainterPath
+from PySide6.QtWidgets import QLabel, QWidget
 
 from siui.core import SiColor, SiGlobal, createPainter
 from siui.core.painter import getSuperRoundedRectPath
@@ -39,8 +36,12 @@ class SiLabelRefactor(QLabel):
         return self.style_data.background_color
 
     def borderRadius(self) -> tuple:
-        return (self.style_data.border_bottom_left_radius, self.style_data.border_bottom_right_radius,
-                self.style_data.border_top_left_radius, self.style_data.border_top_right_radius)
+        return (
+            self.style_data.border_bottom_left_radius,
+            self.style_data.border_bottom_right_radius,
+            self.style_data.border_top_left_radius,
+            self.style_data.border_top_right_radius,
+        )
 
     def setTextColor(self, code: str | tuple) -> None:
         self.style_data.text_color = SiColor.toArray(code)
@@ -103,9 +104,6 @@ class SiLabelRefactor(QLabel):
     def leaveEvent(self, event) -> None:
         super().leaveEvent(event)
         self._hideToolTip()
-
-
-
 
 
 # class SiPainterPath(QPainterPath):
@@ -200,9 +198,9 @@ class HyperRoundBorderTest(QWidget):
         rect = self.rect()
 
         renderHints = (
-                QPainter.RenderHint.SmoothPixmapTransform
-                | QPainter.RenderHint.TextAntialiasing
-                | QPainter.RenderHint.Antialiasing
+            QPainter.RenderHint.SmoothPixmapTransform
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.Antialiasing
         )
 
         with createPainter(self, renderHints) as painter:
@@ -213,5 +211,9 @@ class HyperRoundBorderTest(QWidget):
         self.points = []
         q = self.quality
         for i in range(q // 4 * 1, q // 4 * 2):
-            self.points.append(QPointF((self.sinSuper(2 * math.pi * i / q) + 1) * self.width() / 2,
-                                       (self.cosSuper(2 * math.pi * i / q) + 1) * self.height() / 2))
+            self.points.append(
+                QPointF(
+                    (self.sinSuper(2 * math.pi * i / q) + 1) * self.width() / 2,
+                    (self.cosSuper(2 * math.pi * i / q) + 1) * self.height() / 2,
+                )
+            )

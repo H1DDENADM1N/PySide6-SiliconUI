@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components import (
     SiDenseHContainer,
@@ -41,7 +41,7 @@ class ExampleDialogs(SiPage):
 
             # 侧边栏信息
             self.side_messages = OptionCardPlaneForWidgetDemos(self)
-            self.side_messages.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.side_messages.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                 "/widgets/progress_bar/progress_bar.py")
             self.side_messages.setTitle("侧边栏信息")
             self.side_messages.setFixedWidth(800)
@@ -129,7 +129,7 @@ class ExampleDialogs(SiPage):
 
             # 子页面
             self.global_drawer_left = OptionCardPlaneForWidgetDemos(self)
-            self.global_drawer_left.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.global_drawer_left.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                               "/widgets/progress_bar/progress_bar.py")
             self.global_drawer_left.setTitle("全局左侧抽屉")
             self.global_drawer_left.setFixedWidth(800)
@@ -163,7 +163,7 @@ class ExampleDialogs(SiPage):
 
             # 子页面
             self.child_pages = OptionCardPlaneForWidgetDemos(self)
-            self.child_pages.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.child_pages.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                               "/widgets/progress_bar/progress_bar.py")
             self.child_pages.setTitle("子页面")
             self.child_pages.setFixedWidth(800)
@@ -189,7 +189,7 @@ class ExampleDialogs(SiPage):
 
             # 模态弹窗
             self.modal_dialog = OptionCardPlaneForWidgetDemos(self)
-            self.modal_dialog.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.modal_dialog.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                "/widgets/progress_bar/progress_bar.py")
             self.modal_dialog.setTitle("模态弹窗")
             self.modal_dialog.setFixedWidth(800)

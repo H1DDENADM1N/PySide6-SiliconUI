@@ -1,12 +1,11 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtWidgets import QAbstractButton
 
 from siui.components.widgets.abstracts import ABCButton, ABCPushButton, ABCToggleButton, LongPressThread
 from siui.components.widgets.label import SiIconLabel, SiLabel, SiSvgLabel
-from siui.core.animation import SiExpAnimation
-from siui.core.color import Color
-from siui.core.globals import SiGlobal
-from siui.gui import GlobalFont, SiFont
+from siui.core import GlobalFont, Si, SiColor, SiExpAnimation, SiGlobal
+from siui.gui import SiFont
+from siui.gui.color_group import SiColorGroup
 
 
 class SiPushButton(ABCPushButton):
@@ -18,12 +17,12 @@ class SiPushButton(ABCPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.themed = False  # 是否使用主题颜色
+        self.use_transition = False     # 是否使用过渡色
 
         # 实例化文本标签
         self.label = SiIconLabel(self)
-        self.label.setAutoAdjustSize(True)
-        self.label.setFont(SiFont.fromToken(GlobalFont.S_BOLD))
+        self.label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
+        self.label.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
         self.label.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # 设置偏移量，以保证在按钮明亮面显示
@@ -39,35 +38,35 @@ class SiPushButton(ABCPushButton):
         self.label.setStyleSheet(f"color: {SiGlobal.siui.colors['TEXT_B']}")
 
         # 设置按钮表面和阴影的颜色
-        if self.themed is True:
-            # 主题样式
+        if self.use_transition is True:
+            # 使用过渡色
             self.body_top.setStyleSheet(
+                f"""
+                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 {self.getColor(SiColor.BUTTON_THEMED_BG_A)},
+                    stop:1 {self.getColor(SiColor.BUTTON_THEMED_BG_B)})
                 """
-                background-color:qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                 stop:0 {}, stop:1 {})
-                """.format(SiGlobal.siui.colors["BUTTON_THEMED_BG_A"], SiGlobal.siui.colors["BUTTON_THEMED_BG_B"])
             )
             self.body_bottom.setStyleSheet(
+                f"""
+                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 {self.getColor(SiColor.BUTTON_THEMED_SHADOW_A)},
+                    stop:1 {self.getColor(SiColor.BUTTON_THEMED_SHADOW_B)})
                 """
-                background-color:qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                 stop:0 {}, stop:1 {})
-                """.format(
-                    SiGlobal.siui.colors["BUTTON_THEMED_SHADOW_A"], SiGlobal.siui.colors["BUTTON_THEMED_SHADOW_B"]
-                )
             )
 
         else:
-            # 非主题样式
-            self.body_top.setStyleSheet(f"background-color: {SiGlobal.siui.colors['BUTTON_NORMAL_BG']}")
-            self.body_bottom.setStyleSheet(f"background-color: {SiGlobal.siui.colors['BUTTON_NORMAL_SHADOW']}")
+            # 纯色
+            self.body_top.setStyleSheet(f"background-color: {self.getColor(SiColor.BUTTON_PANEL)}")
+            self.body_bottom.setStyleSheet(f"background-color: {self.getColor(SiColor.BUTTON_SHADOW)}")
 
-    def setThemed(self, b: bool):
+    def setUseTransition(self, b: bool):
         """
         设置按钮是否成为主题按钮
         :param b: 是否设为主题按钮
         :return:
         """
-        self.themed = b
+        self.use_transition = b
 
 
 class SiLongPressButton(ABCPushButton):
@@ -75,7 +74,6 @@ class SiLongPressButton(ABCPushButton):
     需要持续长按一段时间才能触发点击事件的按钮，可以设置文字、图标或是兼有\n
     被绑定部件是一个 SiIconLabel，需要使用 attachment 方法来访问它
     """
-
     longPressed = Signal()
 
     def __init__(self, *args, **kwargs):
@@ -87,18 +85,20 @@ class SiLongPressButton(ABCPushButton):
         self.pressed_state = False
 
         # 关闭自身触发点击的动画，以仅在按下超时后子再触发
-        self.setEnableClickAnimation(False)
+        self.setFlashOnClicked(False)
 
         # 实例化按压线程，并绑定槽函数
         self.hold_thread = LongPressThread(self)
         self.hold_thread.ticked.connect(self._process_changed_handler)
         self.hold_thread.holdTimeout.connect(self._run_clicked_ani)
         self.hold_thread.holdTimeout.connect(self.longPressed.emit)
+        # self.destroyed.connect(self.hold_thread.stopRunning, Qt.AutoConnection)
+        self.destroyed.connect(self.hold_thread.terminate, Qt.AutoConnection)
 
         # 实例化文本标签
         self.label = SiIconLabel(self)
-        self.label.setAutoAdjustSize(True)
-        self.label.setFont(SiFont.fromToken(GlobalFont.S_BOLD))
+        self.label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
+        self.label.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
         self.label.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # 设置偏移量，以保证在按钮明亮面显示
@@ -109,20 +109,21 @@ class SiLongPressButton(ABCPushButton):
 
     def _process_changed_handler(self, p):
         self.body_top.setStyleSheet(
+            f"""
+            background-color: qlineargradient(x1:{p-0.001}, y1:0, x2:{p}, y2:0,
+                 stop:0 {self.getColor(SiColor.BUTTON_LONG_PRESS_PROGRESS)},
+                 stop:1 {self.getColor(SiColor.BUTTON_LONG_PRESS_PANEL)})
             """
-            background-color:qlineargradient(x1:{}, y1:0, x2:{}, y2:0,
-                                             stop:0 {}, stop:1 {})
-        """.format(p - 0.01, p, SiGlobal.siui.colors["BUTTON_LONG_PROGRESS"], SiGlobal.siui.colors["BUTTON_LONG_BG"])
         )
 
     def reloadStyleSheet(self):
         super().reloadStyleSheet()
 
         # 设置文字颜色
-        self.label.setStyleSheet(f"color: {SiGlobal.siui.colors['TEXT_A']}")
+        self.label.setStyleSheet(f"color: {self.getColor(SiColor.TEXT_B)}")
 
-        self.body_top.setStyleSheet(f"background-color: {SiGlobal.siui.colors['BUTTON_LONG_BG']}")
-        self.body_bottom.setStyleSheet(f"background-color: {SiGlobal.siui.colors['BUTTON_LONG_SHADOW']}")
+        self.body_top.setStyleSheet(f"background-color: {self.getColor(SiColor.BUTTON_LONG_PRESS_PANEL)}")
+        self.body_bottom.setStyleSheet(f"background-color: {self.getColor(SiColor.BUTTON_LONG_PRESS_SHADOW)}")  # noqa: E501
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -150,58 +151,49 @@ class SiToggleButton(ABCToggleButton):
     具有两个状态可以切换的按钮，可以设置文字、图标或是兼有\n
     被绑定部件是一个 SiIconLabel，需要使用 attachment 方法来访问它
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, *kwargs)
 
         # 实例化文本标签
         self.label = SiIconLabel(self)
-        self.label.setAutoAdjustSize(True)
-        self.label.setFont(SiGlobal.siui.fonts["S_BOLD"])
+        self.label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
+        self.label.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
         self.label.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # 绑定到主体
         self.setAttachment(self.label)
 
-        # 设置状态颜色为主题色
-        self.setStateColor(Color.transparency(SiGlobal.siui.colors["THEME"], 0.2), SiGlobal.siui.colors["THEME"])
-
     def reloadStyleSheet(self):
         super().reloadStyleSheet()
 
-        self.label.setStyleSheet(f"color: {SiGlobal.siui.colors['TEXT_B']}")
+        self.label.setStyleSheet(f"color: {self.getColor(SiColor.TEXT_B)}")
 
 
 class SiSimpleButton(SiToggleButton):
     """
     仅有纯色背景的按钮
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, *kwargs)
         # 禁用选中功能
         self.setCheckable(False)
 
         # 设置默认颜色为透明
-        self.setStateColor("#00FFFFFF", "#00FFFFFF")
+        self.colorGroup().assign(SiColor.BUTTON_ON, "#00FFFFFF")
+        self.colorGroup().assign(SiColor.BUTTON_OFF, "#00FFFFFF")
 
-    def setColor(self, color_code: str):
-        """
-        设置按钮的背景颜色
-        :param color_code: 色号
-        :return:
-        """
-        self.setStateColor(color_code, color_code)
+    def setIdleColor(self, color_code):
+        self.colorGroup().assign(SiColor.BUTTON_ON, color_code)
+        self.colorGroup().assign(SiColor.BUTTON_OFF, color_code)
 
 
 class SiRadioButton(SiLabel):
     """
-    单选组件，提供一个单选按钮和一个文字标签
+    单选组件，提供一个单选按钮和一个文字标签，会自动设置默认大小
     """
-
     toggled = Signal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
 
@@ -220,14 +212,14 @@ class SiRadioButton(SiLabel):
         # 创建选项文字
         self.text_label = SiLabel(self)
         self.text_label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.text_label.setFont(SiFont.fromToken(GlobalFont.S_NORMAL))
-        self.text_label.setAutoAdjustSize(True)
+        self.text_label.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
+        self.text_label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
     def reloadStyleSheet(self):
         super().reloadStyleSheet()
 
         # 设置文字颜色
-        self.text_label.setStyleSheet(f"color: {SiGlobal.siui.colors['TEXT_A']}")
+        self.text_label.setStyleSheet(f"color: {self.getColor(SiColor.TEXT_B)}")
 
         # 设置选项按钮样式表，调用自己的事件处理器以刷新
         self._toggled_handler(self.isChecked())
@@ -249,7 +241,7 @@ class SiRadioButton(SiLabel):
         self.adjustSize()
 
     def adjustSize(self):
-        self.resize(20 + 8 + self.text_label.width(), 32)
+        self.resize(20 + 8 + self.text_label.width(), 24)
 
     def setChecked(self, state):
         """
@@ -274,11 +266,11 @@ class SiRadioButton(SiLabel):
 
             # 禁止其切换模式，防止被取消选择
             self.indicator.setCheckable(False)
-            self.indicator_label.setStyleSheet(f"border: 4px solid {SiGlobal.siui.colors['THEME']}")
+            self.indicator_label.setStyleSheet(f"border: 4px solid {self.getColor(SiColor.RADIO_BUTTON_CHECKED)}")  # noqa: E501
         else:
             # 如果被选中状态为假，就允许其切换模式
             self.indicator.setCheckable(True)
-            self.indicator_label.setStyleSheet(f"border: 2px solid {SiGlobal.siui.colors['INTERFACE_BG_A']}")
+            self.indicator_label.setStyleSheet(f"border: 3px solid {self.getColor(SiColor.RADIO_BUTTON_UNCHECKED)}")  # noqa: E501
 
     def _uncheck_all_in_same_parent(self):
         """
@@ -294,7 +286,7 @@ class SiRadioButton(SiLabel):
         super().resizeEvent(event)
         h = event.size().height()
 
-        self.indicator.move(0, (h - 20) // 2)
+        self.indicator.move(0, (h-20)//2)
         self.indicator_label.move(0, (h - 20) // 2)
         self.text_label.move(28, (h - self.text_label.height()) // 2 - 1)  # 减1是为了让偏下的文字显示正常一点
 
@@ -303,10 +295,9 @@ class SiCheckBox(SiLabel):
     """
     多选组件，提供一个多选按钮和一个文字标签
     """
-
     toggled = Signal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
 
@@ -316,7 +307,15 @@ class SiCheckBox(SiLabel):
         self.indicator_label.setFixedStyleSheet("border-radius: 4px")  # 注意：这里是固定样式表
 
         # 一个标签显示打钩的图标
-        svg_data = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M22.319,4.431,8.5,18.249a1,1,0,0,1-1.417,0L1.739,12.9a1,1,0,0,0-1.417,0h0a1,1,0,0,0,0,1.417l5.346,5.345a3.008,3.008,0,0,0,4.25,0L23.736,5.847a1,1,0,0,0,0-1.416h0A1,1,0,0,0,22.319,4.431Z" fill="#000000" /></svg>'
+        svg_data = ('<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" '
+                    'xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 '
+                    '0 507.506 507.506" style="enable-background:new 0 0 507.506 507.506;" xml:space="preserve" '
+                    'width="512" height="512"><g><path d="M163.865,436.934c-14.406,'
+                    '0.006-28.222-5.72-38.4-15.915L9.369,304.966c-12.492-12.496-12.492-32.752,0-45.248l0,'
+                    '0   c12.496-12.492,32.752-12.492,45.248,0l109.248,109.248L452.889,79.942c12.496-12.492,'
+                    '32.752-12.492,45.248,0l0,0   c12.492,12.496,12.492,32.752,0,45.248L202.265,421.019C192.087,'
+                    '431.214,178.271,436.94,163.865,436.934z" '
+                    f'fill="{self.getColor(SiColor.CHECKBOX_SVG)}" /></g></svg>')
         self.indicator_icon = SiSvgLabel(self)
         self.indicator_icon.resize(20, 20)
         self.indicator_icon.setSvgSize(12, 12)
@@ -333,14 +332,14 @@ class SiCheckBox(SiLabel):
         # 创建选项文字
         self.text_label = SiLabel(self)
         self.text_label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.text_label.setFont(SiFont.fromToken(GlobalFont.S_NORMAL))
-        self.text_label.setAutoAdjustSize(True)
+        self.text_label.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
+        self.text_label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
     def reloadStyleSheet(self):
         super().reloadStyleSheet()
 
         # 设置文字颜色
-        self.text_label.setStyleSheet(f"color: {SiGlobal.siui.colors['TEXT_A']}")
+        self.text_label.setStyleSheet(f"color: {self.getColor(SiColor.TEXT_B)}")
 
         # 设置选项按钮样式表，调用自己的事件处理器以刷新
         self._toggled_handler(self.isChecked())
@@ -362,7 +361,7 @@ class SiCheckBox(SiLabel):
         self.adjustSize()
 
     def adjustSize(self):
-        self.resize(20 + 8 + self.text_label.width(), 32)
+        self.resize(20 + 8 + self.text_label.width(), 24)
 
     def setChecked(self, state):
         """
@@ -382,16 +381,16 @@ class SiCheckBox(SiLabel):
     def _toggled_handler(self, check: bool):
         if check is True:
             self.indicator_icon.setVisible(True)
-            self.indicator_label.setStyleSheet(f"background-color: {SiGlobal.siui.colors['THEME']}")
+            self.indicator_label.setStyleSheet(f"background-color: {self.getColor(SiColor.CHECKBOX_CHECKED)}")  # noqa: E501
         else:
             self.indicator_icon.setVisible(False)
-            self.indicator_label.setStyleSheet(f"border: 1px solid {SiGlobal.siui.colors['TEXT_D']}")
+            self.indicator_label.setStyleSheet(f"border: 1px solid {self.getColor(SiColor.CHECKBOX_UNCHECKED)}")  # noqa: E501
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         h = event.size().height()
 
-        self.indicator.move(0, (h - 20) // 2)
+        self.indicator.move(0, (h-20)//2)
         self.indicator_label.move(0, (h - 20) // 2)
         self.indicator_icon.move(0, (h - 20) // 2)
         self.text_label.move(28, (h - self.text_label.height()) // 2 - 1)  # 减1是为了让偏下的文字显示正常一点
@@ -405,16 +404,17 @@ class SiSwitch(QAbstractButton):
     """
     开关
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setCheckable(True)
+
+        # 自定义状态属性，初始值为 False
+        self._checked = False
+
+        # 颜色组
+        self.color_group = SiColorGroup(reference=SiGlobal.siui.colors)
 
         # 设置自身固定大小
         self.setFixedSize(40, 20)
-
-        # 绑定切换事件
-        self.toggled.connect(self._toggle_handler)
 
         # 开关框架
         self.switch_frame = SiLabel(self)
@@ -428,10 +428,14 @@ class SiSwitch(QAbstractButton):
 
         # 创建动画
         self.toggle_animation = SiExpAnimation(self)
-        self.toggle_animation.setFactor(1 / 5)
+        self.toggle_animation.setFactor(1/5)
         self.toggle_animation.setBias(1)
         self.toggle_animation.setCurrent(3)
         self.toggle_animation.ticked.connect(self._lever_move_animation_handler)
+
+        # 记录拉杆与鼠标偏移量
+        self._initial_pos: QPoint = QPoint(0, 0)
+        self._drag_offset = 0
 
     def reloadStyleSheet(self):
         """
@@ -440,30 +444,98 @@ class SiSwitch(QAbstractButton):
         """
         self._lever_move_animation_handler(self.switch_lever.x())
 
+    def getColor(self, token):
+        return self.color_group.fromToken(token)
+
+    def colorGroup(self):
+        """
+        Get the color group of this widget
+        :return: SiColorGroup
+        """
+        return self.color_group
+
     def _lever_move_animation_handler(self, x):
         self.switch_lever.move(int(x), self.switch_lever.y())
 
         # 检测拉杆的位置，如果过了半程，则改变边框样式
-        if (x - 3) / 20 >= 0.5:
+        if self._process_lever_position():
             self.switch_frame.setStyleSheet(
+                f"""
+                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 {self.getColor(SiColor.THEME_TRANSITION_A)},
+                stop:1 {self.getColor(SiColor.THEME_TRANSITION_B)});
                 """
-                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {}, stop:1 {});
-                """.format(SiGlobal.siui.colors["THEME_TRANSITION_A"], SiGlobal.siui.colors["THEME_TRANSITION_B"])
             )
-            self.switch_lever.setStyleSheet("background-color:{}".format(SiGlobal.siui.colors["SWITCH_ACTIVATE"]))
+            self.switch_lever.setStyleSheet(f"background-color:{self.getColor(SiColor.SWITCH_ACTIVATE)}")
 
         else:
-            self.switch_frame.setStyleSheet("border: 1px solid {}".format(SiGlobal.siui.colors["SWITCH_DEACTIVATE"]))
-            self.switch_lever.setStyleSheet("background-color:{}".format(SiGlobal.siui.colors["SWITCH_DEACTIVATE"]))
+            self.switch_frame.setStyleSheet(f"border: 1px solid {self.getColor(SiColor.SWITCH_DEACTIVATE)}")  # noqa: E501
+            self.switch_lever.setStyleSheet(f"background-color:{self.getColor(SiColor.SWITCH_DEACTIVATE)}")  # noqa: E501
 
     def _set_animation_target(self, is_checked):
-        if is_checked is True:
-            self.toggle_animation.setTarget(23)
-        else:
-            self.toggle_animation.setTarget(3)
+        self.toggle_animation.setCurrent(self.switch_lever.x())
+        self.toggle_animation.setTarget(23 if is_checked else 3)
+
+    def _process_lever_position(self) -> bool:
+        """
+        根据滑杆位置决定开关的选中状态。
+        """
+        lever_position = self.switch_lever.x()
+        return (lever_position - 3) / 20 >= 0.5
 
     def paintEvent(self, e):
         pass
+
+    def isChecked(self):
+        return self._checked  # 返回自定义状态
+
+    def setChecked(self, checked):
+        if self._checked != checked:
+            self._checked = checked
+            self.toggled.emit(self._checked)  # 发射信号
+            self._toggle_handler(self._checked)  # 更新动画
+
+    def mousePressEvent(self, event):
+        """
+        处理鼠标按下事件，记录鼠标点击位置与滑杆的相对位置。
+        """
+        if event.button() == Qt.LeftButton:
+            self._drag_offset = event.pos().x() - self.switch_lever.x()  # 记录偏移量
+            self._initial_pos = event.pos()  # 记录初始点击位置
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        """
+        处理滑条的鼠标移动事件，拖动时移动滑杆。
+        """
+        if event.buttons() & Qt.LeftButton:  # 检查鼠标左键是否按下
+            # 获取鼠标在 slider 上的位置，并使用之前记录的偏移量来移动滑杆
+            mouse_pos = event.pos()
+            target_pos = mouse_pos.x() - self._drag_offset  # 保持相对位置
+            self._lever_move_animation_handler(min(max(target_pos, 3), 23))
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """
+        处理鼠标松开事件，区分点击和拖动操作。
+        """
+        if event.button() == Qt.LeftButton:
+            release_pos = event.pos()
+            drag_distance = abs(release_pos.x() - self._initial_pos.x())
+
+            if drag_distance < 3:  # 点击操作
+                self._checked = not self._checked  # 切换状态
+                self.toggled.emit(self._checked)  # 手动发射toggled信号
+            else:  # 拖动操作
+                new_checked_state = self._process_lever_position()
+                if self._checked != new_checked_state:
+                    self._checked = new_checked_state
+                    self.toggled.emit(self._checked)  # 手动发射toggled信号
+
+            # 更新动画
+            self._toggle_handler(self._checked)
+
+        super().mouseReleaseEvent(event)
 
     def _toggle_handler(self, is_checked):
         self._set_animation_target(is_checked)

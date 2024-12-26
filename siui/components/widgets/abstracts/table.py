@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal
+from PySide6.QtCore import Signal
 
 from siui.components import SiDividedHContainer, SiLabel, SiWidget
 from siui.components.widgets.abstracts.container import SiSectionTemplate
@@ -50,8 +50,8 @@ class SiRow(SiLabel):
 
 
 class ABCSiTable(SiWidget):
-    rowAdded = pyqtSignal(int)
-    rowDeleted = pyqtSignal(int)
+    rowAdded = Signal(int)
+    rowDeleted = Signal(int)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

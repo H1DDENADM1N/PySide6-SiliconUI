@@ -1,6 +1,6 @@
-from PyQt5.Qt import QColor
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QGraphicsDropShadowEffect
 
 from siui.components.widgets.abstracts.widget import SiWidget
 from siui.components.widgets.container import SiDenseVContainer
@@ -9,10 +9,10 @@ from siui.core import SiColor, SiGlobal
 
 
 class ABCSiMenu(SiWidget):
-    indexChanged = pyqtSignal(int)
-    valueChanged = pyqtSignal(object)
-    unfoldSignal = pyqtSignal()
-    closeSignal = pyqtSignal()
+    indexChanged = Signal(int)
+    valueChanged = Signal(object)
+    unfoldSignal = Signal()
+    closeSignal = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,7 +27,7 @@ class ABCSiMenu(SiWidget):
         self.padding = 4
 
         self.setMoveAnchor(self.margin + self.padding, self.margin + self.padding)
-        self.setMinimumSize(self.margin*2, self.margin*2)
+        self.setMinimumSize(self.margin * 2, self.margin * 2)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
 
@@ -42,7 +42,7 @@ class ABCSiMenu(SiWidget):
         self.flash_layer = SiLabel(self)
         self.flash_layer.setFixedStyleSheet("border-radius: 6px")
         self.flash_layer.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.flash_layer.animationGroup().fromToken("color").setFactor(1/16)
+        self.flash_layer.animationGroup().fromToken("color").setFactor(1 / 16)
 
         self.body_ = SiDenseVContainer(self.body_panel)
         self.body_.setAdjustWidgetsSize(True)
@@ -70,21 +70,21 @@ class ABCSiMenu(SiWidget):
         )
 
     def setAnchorByIndex(self, index):
-        """ set an option's position as the anchor of the menu by index """
+        """set an option's position as the anchor of the menu by index"""
         option = self.options_[index]
         shift = self.margin + self.padding
         self.setMoveAnchor(option.pos().x() + shift, option.pos().y() + shift)
 
     def setWakenOption(self, option_from_parent_menu):
-        """ set the waken option of this menu """
+        """set the waken option of this menu"""
         self.waken_option = option_from_parent_menu
 
     def wakenOption(self):
-        """ get the waken option of this menu """
+        """get the waken option of this menu"""
         return self.waken_option
 
     def setShowIcon(self, state: bool):
-        """ set whether options show their icon """
+        """set whether options show their icon"""
         for option in self.options_:
             option.setShowIcon(state)
 
@@ -99,7 +99,7 @@ class ABCSiMenu(SiWidget):
             option.setSelectable(state)
 
     def setIndex(self, index):
-        """ Set current index of this menu """
+        """Set current index of this menu"""
         self.options()[index].setSelected(True)
         self.current_index = index
         self.current_value = self.options()[index].value()
@@ -110,10 +110,7 @@ class ABCSiMenu(SiWidget):
     def value(self):
         return self.current_value
 
-    def addOption(self,
-                  text: str,
-                  icon: str = None,
-                  child_menu=None):
+    def addOption(self, text: str, icon: str = None, child_menu=None):
         """
         add an option to this menu
         :param text: text of the option added
@@ -124,11 +121,11 @@ class ABCSiMenu(SiWidget):
         raise NotImplementedError()
 
     def body(self):
-        """ get the body of this menu """
+        """get the body of this menu"""
         return self.body_
 
     def options(self):
-        """ get the options of this menu """
+        """get the options of this menu"""
         return self.options_
 
     def setAnimationManager(self, token):
@@ -143,16 +140,16 @@ class ABCSiMenu(SiWidget):
         self.resize(self.width(), self.margin * 2)
 
     def recursiveClose(self):
-        """ close menu recursively, this will close the menus' parent menus. """
+        """close menu recursively, this will close the menus' parent menus."""
         if self.wakenOption() is not None:
             self.wakenOption().parentMenu().recursiveClose()
         self.close()
 
     def setContentFixedWidth(self, w):
-        self.setFixedWidth(w + self.padding*2 + self.margin*2)
+        self.setFixedWidth(w + self.padding * 2 + self.margin * 2)
 
     def unfold(self, x, y):
-        """ unfold the menu """
+        """unfold the menu"""
         self.animationManager().on_parent_unfolded(self, x, y)
 
     def resizeEvent(self, event):

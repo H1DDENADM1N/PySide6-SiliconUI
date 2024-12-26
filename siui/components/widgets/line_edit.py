@@ -1,64 +1,105 @@
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit
 
-from siui.core.globals import SiGlobal
-from siui.components.widgets import SiLabel
-from siui.components.widgets.abstracts import ABCSiLineEdit
+from siui.components.widgets import SiLabel, SiWidget
+from siui.components.widgets.abstracts import ABCSiLineEdit, SiSimpleLineEdit
+from siui.components.widgets.button import SiSimpleButton
+from siui.core import SiGlobal, SiColor, SiExpAnimation
 
 
-class SiLineEdit(SiLabel):
+class SiLineEdit(ABCSiLineEdit):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 创建 LineEdit
-        self.line_edit = ABCSiLineEdit(self)
-        self.line_edit.setTextMargins(12, 0, 12, 2)
+        self.line_edit = SiSimpleLineEdit(self)
+        self.line_edit.setTextMargins(12, 0, 12, 1)
         self.line_edit.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.line_edit.onFocus.connect(self._focus_handler)
+        self.line_edit.onFocus.connect(self.on_focus_changed)
         self.line_edit.returnPressed.connect(self.line_edit.clearFocus)  # 按下回车，移出焦点
+        self.container().addWidget(self.line_edit)
 
-        # 创建外观标签
-        # 承载文字的部分
-        self.outfit_label_top = SiLabel(self)
-        self.outfit_label_top.lower()
-        self.outfit_label_top.setFixedStyleSheet("""border-top-left-radius:4px; border-top-right-radius:4px;
-            border-bottom-left-radius:2px; border-bottom-right-radius:2px """)
+    def adjustLineEditSize(self):
+        preferred_width = self.container().width() - self.container().getUsedSpace("right")
+        self.line_edit.resize(preferred_width, self.line_edit.height())
 
-        # 带主题色的地边条
-        self.outfit_label_bottom = SiLabel(self)
-        self.outfit_label_bottom.stackUnder(self.outfit_label_top)
-        self.outfit_label_bottom.setFixedStyleSheet("border-radius: 4px")
-
-    def reloadStyleSheet(self):
-        """
-        重载样式表
-        """
-        super().reloadStyleSheet()
-
-        self.outfit_label_top.setStyleSheet("background-color: {}".format(SiGlobal.siui.colors["INTERFACE_BG_B"]))
-        self.outfit_label_bottom.setStyleSheet("""
-            background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {}, stop:1 {});
-            """.format(SiGlobal.siui.colors["THEME_TRANSITION_A"], SiGlobal.siui.colors["THEME_TRANSITION_B"]))
-
-    def attachment(self):
-        """
-        返回 LineEdit 对象
-        :return: LineEdit 对象
-        """
+    def lineEdit(self):
         return self.line_edit
-
-    def _focus_handler(self, is_on):
-        w, h = self.size().width(), self.size().height()
-        if is_on:
-            self.outfit_label_top.resize(w, h - 2)
-        else:
-            self.outfit_label_top.resize(w, h - 1)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        size = event.size()
-        w, h = size.width(), size.height()
+        self.adjustLineEditSize()
 
-        self.line_edit.resize(w, h)
 
-        self.outfit_label_bottom.resize(w, h)
-        self.outfit_label_top.resize(w, h-1)
+class SiLineEditWithDeletionButton(SiLineEdit):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.deletion_button = SiSimpleButton(self)
+        self.deletion_button.resize(24, 24)
+        self.deletion_button.attachment().setSvgSize(16, 16)
+        self.deletion_button.attachment().load(SiGlobal.siui.iconpack.get("ic_fluent_delete_regular"))
+        self.deletion_button.clicked.connect(self.clear_text)
+        self.container().setSpacing(0)
+        self.container().addPlaceholder(8, "right")
+        self.container().addWidget(self.deletion_button, "right")
+
+    def clear_text(self):
+        self.lineEdit().setText("")
+
+
+class SiLineEditWithItemName(SiWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.name_spacing = 128
+
+        self.base_panel = SiLabel(self)
+        self.base_panel.setFixedStyleSheet("border-radius: 6px")
+        self.base_panel.animation_color.setBias(1)
+        self.base_panel.animation_color.setFactor(1/32)
+
+        self.edit_panel = SiLabel(self)
+        self.edit_panel.setFixedStyleSheet("border-radius: 6px")
+
+        self.name_label = SiLabel(self)
+        self.name_label.setContentsMargins(16, 0, 16, 0)
+        self.name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        self.line_edit = SiSimpleLineEdit(self.edit_panel)
+        self.line_edit.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.line_edit.setTextMargins(16, 0, 16, 0)
+        self.line_edit.textEdited.connect(self.flash_on_edited)
+
+    def reloadStyleSheet(self):
+        super().reloadStyleSheet()
+        c = self.getColor(SiColor.INTERFACE_BG_C)
+        b = self.getColor(SiColor.INTERFACE_BG_B)
+        a = self.getColor(SiColor.INTERFACE_BG_A)
+
+        self.base_panel.setColor(SiColor.mix(c, b, 0.3))
+        self.edit_panel.setColor(SiColor.mix(b, a, 0.5))
+        self.name_label.setTextColor(self.getColor(SiColor.TEXT_D))
+
+    def flash_on_edited(self):
+        c = self.getColor(SiColor.INTERFACE_BG_C)
+        b = self.getColor(SiColor.INTERFACE_BG_B)
+        self.base_panel.setColor(self.getColor(SiColor.INTERFACE_BG_E))
+        self.base_panel.setColorTo(SiColor.mix(c, b, 0.3))
+
+    def setName(self, name: str):
+        self.name_label.setText(name)
+
+    def lineEdit(self):
+        return self.line_edit
+
+    def setNameSpacing(self, spacing):
+        self.name_spacing = spacing
+        self.resize(self.size())
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.base_panel.resize(event.size())
+        self.edit_panel.setGeometry(
+            self.name_spacing, 0, event.size().width() - self.name_spacing, event.size().height())
+        self.name_label.resize(self.name_spacing, event.size().height())
+        self.line_edit.resize(self.edit_panel.size())

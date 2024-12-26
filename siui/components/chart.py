@@ -1,28 +1,28 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from PyQt5.QtCore import QEvent, QLineF, QPoint, QPointF, QRect, QRectF, Qt, pyqtProperty
-from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import Property, QEvent, QLineF, QPoint, QPointF, QRect, QRectF, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
+from PySide6.QtWidgets import QWidget
 
 from siui.core import createPainter, hideToolTip, isTooltipShown, showToolTip
 from siui.core.animation import SiExpAnimationRefactor
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 @dataclass
 class TrendChartStyleData:
-    background_color: QColor = QColor("#25222a")
-    major_tick_color: QColor = QColor("#433b49")
-    minor_tick_color: QColor = QColor("#2e2a34")
-    axis_tick_color: QColor = QColor("#6a5e73")
+    background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
+    major_tick_color: QColor = field(default_factory=lambda: QColor("#433b49"))
+    minor_tick_color: QColor = field(default_factory=lambda: QColor("#2e2a34"))
+    axis_tick_color: QColor = field(default_factory=lambda: QColor("#6a5e73"))
 
-    axis_label_color: QColor = QColor("#918497")
-    axis_name_color: QColor = QColor("#DFDFDF")
+    axis_label_color: QColor = field(default_factory=lambda: QColor("#918497"))
+    axis_name_color: QColor = field(default_factory=lambda: QColor("#DFDFDF"))
 
-    line_color: QColor = QColor("#A681BF")
-    indicator_idle_color: QColor = QColor("#00DFDFDF")
-    indicator_hover_color: QColor = QColor("#FFDFDFDF")
-    tick_text_color: QColor = QColor("#918497")
+    line_color: QColor = field(default_factory=lambda: QColor("#A681BF"))
+    indicator_idle_color: QColor = field(default_factory=lambda: QColor("#00DFDFDF"))
+    indicator_hover_color: QColor = field(default_factory=lambda: QColor("#FFDFDFDF"))
+    tick_text_color: QColor = field(default_factory=lambda: QColor("#918497"))
 
     axis_y_label_width: int = 64
     axis_y_name_width: int = 32
@@ -33,7 +33,7 @@ class TrendChartStyleData:
 
 
 class SiTrendChart(QWidget):
-    class Property:
+    class SiTrendChartProperty:
         IndicatorPosition = "indicatorPosition"
         IndicatorColor = "indicatorColor"
 
@@ -58,13 +58,13 @@ class SiTrendChart(QWidget):
         self._y_tick_name_func = lambda x: str(round(x, 2))
         self._tool_tip_func = lambda x, y: f"x = {round(x, 4)}\ny = {round(y, 4)}"
 
-        self.indicator_pos_ani = SiExpAnimationRefactor(self, self.Property.IndicatorPosition)
-        self.indicator_pos_ani.init(1/3.5, 0.01, self._indicator_position, self._indicator_position)
+        self.indicator_pos_ani = SiExpAnimationRefactor(self, self.SiTrendChartProperty.IndicatorPosition)
+        self.indicator_pos_ani.init(1 / 3.5, 0.01, self._indicator_position, self._indicator_position)
 
-        self.indicator_color_ani = SiExpAnimationRefactor(self, self.Property.IndicatorColor)
-        self.indicator_color_ani.init(1/4, 0.01, self._indicator_color, self._indicator_color)
+        self.indicator_color_ani = SiExpAnimationRefactor(self, self.SiTrendChartProperty.IndicatorColor)
+        self.indicator_color_ani.init(1 / 4, 0.01, self._indicator_color, self._indicator_color)
 
-    @pyqtProperty(QPointF)
+    @Property(QPointF)
     def indicatorPosition(self):
         return self._indicator_position
 
@@ -73,7 +73,7 @@ class SiTrendChart(QWidget):
         self._indicator_position = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def indicatorColor(self):
         return self._indicator_color
 
@@ -142,7 +142,7 @@ class SiTrendChart(QWidget):
             self.update()
 
     def coordinateToPos(self, coordinate_point: QPointF, chart_rect: QRectF) -> QPointF:
-        """ returns displaying position of the given data point """
+        """returns displaying position of the given data point"""
         px = (coordinate_point.x() - self._view_rect.x()) / self._view_rect.width()
         py = (coordinate_point.y() - self._view_rect.y()) / self._view_rect.height()
         return QPointF(px * chart_rect.width(), (1 - py) * chart_rect.height())
@@ -150,8 +150,10 @@ class SiTrendChart(QWidget):
     def posToCoordinate(self, pos: QPointF, chart_rect: QRectF) -> QPointF:
         px = pos.x() / chart_rect.width()
         py = pos.y() / chart_rect.height()
-        return QPointF(px * self._view_rect.width() + self._view_rect.x(),
-                       (1 - py) * self._view_rect.height() + self._view_rect.y())
+        return QPointF(
+            px * self._view_rect.width() + self._view_rect.x(),
+            (1 - py) * self._view_rect.height() + self._view_rect.y(),
+        )
 
     def event(self, event):
         if event.type() == QEvent.ToolTip:
@@ -202,10 +204,12 @@ class SiTrendChart(QWidget):
         self._shown_point_list = result
 
     def _getBackgroundRect(self) -> QRectF:
-        return QRectF(self.style_data.axis_y_name_width + self.style_data.axis_y_label_width,
-                      0,
-                      self.width() - self.style_data.axis_y_name_width - self.style_data.axis_y_label_width,
-                      self.height() - self.style_data.axis_x_name_height - self.style_data.axis_x_label_height)
+        return QRectF(
+            self.style_data.axis_y_name_width + self.style_data.axis_y_label_width,
+            0,
+            self.width() - self.style_data.axis_y_name_width - self.style_data.axis_y_label_width,
+            self.height() - self.style_data.axis_x_name_height - self.style_data.axis_x_label_height,
+        )
 
     def _getChartRect(self) -> QRectF:
         rect = self._getBackgroundRect()
@@ -224,8 +228,10 @@ class SiTrendChart(QWidget):
         while (now_tick_index - 1) * x_minor_tick_delta < self._view_rect.x() + self._view_rect.width():  # 垂直
             p1 = QPointF(now_tick_index * x_minor_tick_delta, self._view_rect.y())
             p2 = QPointF(now_tick_index * x_minor_tick_delta, self._view_rect.y() + self._view_rect.height())
-            line = QLineF(self.coordinateToPos(p1, chart_rect) + chart_rect.topLeft() + QPointF(0, 12),
-                          self.coordinateToPos(p2, chart_rect) + chart_rect.topLeft() + QPointF(0, -12))
+            line = QLineF(
+                self.coordinateToPos(p1, chart_rect) + chart_rect.topLeft() + QPointF(0, 12),
+                self.coordinateToPos(p2, chart_rect) + chart_rect.topLeft() + QPointF(0, -12),
+            )
 
             if now_tick_index % (self._x_minor_tick_count + 1) == 0:
                 major_ticks.append(line)
@@ -238,10 +244,12 @@ class SiTrendChart(QWidget):
         now_tick_index = start_tick_index_y - 1
 
         while (now_tick_index - 1) * y_minor_tick_delta < self._view_rect.y() + self._view_rect.height():  # 垂直
-            p1 = QPointF(self._view_rect.x(),                           now_tick_index * y_minor_tick_delta)
+            p1 = QPointF(self._view_rect.x(), now_tick_index * y_minor_tick_delta)
             p2 = QPointF(self._view_rect.x() + self._view_rect.width(), now_tick_index * y_minor_tick_delta)
-            line = QLineF(self.coordinateToPos(p1, chart_rect) + chart_rect.topLeft() + QPointF(-12, 0),
-                          self.coordinateToPos(p2, chart_rect) + chart_rect.topLeft() + QPointF(12, 0))
+            line = QLineF(
+                self.coordinateToPos(p1, chart_rect) + chart_rect.topLeft() + QPointF(-12, 0),
+                self.coordinateToPos(p2, chart_rect) + chart_rect.topLeft() + QPointF(12, 0),
+            )
 
             if now_tick_index % (self._y_minor_tick_count + 1) == 0:
                 major_ticks.append(line)
@@ -314,7 +322,7 @@ class SiTrendChart(QWidget):
         pen.setWidthF(2)
         pen.setCapStyle(Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawPolyline(*points)
+        painter.drawPolyline(points)
 
     def _drawDataLinePixmap(self, painter: QPainter, rect: QRectF) -> None:
         painter.drawPixmap(rect.toRect(), self._shown_point_pixmap)
@@ -353,14 +361,14 @@ class SiTrendChart(QWidget):
         super().mouseMoveEvent(a0)
 
         chart_rect = self._getChartRect()
-        pos = a0.pos() - chart_rect.topLeft()
+        pos = QPointF(a0.pos()) - chart_rect.topLeft()
         cpos = self.posToCoordinate(pos, chart_rect)
         closest_point = self._findClosestDataPoint(cpos.x())
 
         self.indicator_pos_ani.setEndValue(
             QPointF(
                 min(max(0, self.coordinateToPos(closest_point, chart_rect).x()), chart_rect.width()),
-                self.coordinateToPos(closest_point, chart_rect).y()
+                self.coordinateToPos(closest_point, chart_rect).y(),
             )
         )
         self.indicator_pos_ani.start()

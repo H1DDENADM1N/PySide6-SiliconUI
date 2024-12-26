@@ -1,7 +1,7 @@
 from typing import Any
 
 import numpy
-from PyQt5.QtCore import (
+from PySide6.QtCore import (
     QAbstractAnimation,
     QObject,
     QPoint,
@@ -11,9 +11,9 @@ from PyQt5.QtCore import (
     QSize,
     QSizeF,
     QTimer,
-    pyqtSignal,
+    Signal,
 )
-from PyQt5.QtGui import QColor
+from PySide6.QtGui import QColor
 
 global_fps = 60
 
@@ -25,8 +25,8 @@ class Curve:
 
 
 class ABCSiAnimation(QObject):
-    ticked = pyqtSignal(object)     # 动画进行一刻的信号
-    finished = pyqtSignal(object)   # 动画完成的信号，回传目标值
+    ticked = Signal(object)     # 动画进行一刻的信号
+    finished = Signal(object)   # 动画完成的信号，回传目标值
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -425,7 +425,7 @@ class TypeConversionFuncs:
 
 
 class SiExpAnimationRefactor(QAbstractAnimation):
-    valueChanged = pyqtSignal(object)
+    valueChanged = Signal(object)
 
     def __init__(self, target: QObject, property_name=None, parent=None) -> None:
         super().__init__(parent)

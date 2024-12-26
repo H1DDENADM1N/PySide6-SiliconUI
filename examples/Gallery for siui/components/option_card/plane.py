@@ -24,8 +24,7 @@ class OptionCardPlaneForWidgetDemos(SiOptionCardPlane):
         self.button_bug.resize(32, 32)
         self.button_bug.setHint("报告问题")
         self.button_bug.clicked.connect(
-            lambda: os.system("start https://github.com/ChinaIceF/PyQt-SiliconUI/issues/new")
-        )
+            lambda: os.system("start https://github.com/H1DDENADM1N/PySide6-SiliconUI/issues/new"))
 
         self.button_source_code = SiSimpleButton(self)
         self.button_source_code.attachment().load(SiGlobal.siui.iconpack.get("ic_fluent_open_regular"))

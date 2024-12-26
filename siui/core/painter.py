@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QPainter, QPainterPath
+from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtGui import QPainter, QPainterPath
 
 if TYPE_CHECKING:
-    from PyQt5.QtGui import QFont, QPaintDevice
+    from PySide6.QtGui import QFont, QPaintDevice
 
-    from siui.typing import T_Brush, T_PenStyle, T_RenderHint
+    from siui.siui_typing import T_Brush, T_PenStyle, T_RenderHint
 
 
 def createPainter(
@@ -61,17 +61,19 @@ def _superCos(x: float, power: float = 5.0) -> float:
 def _getSuperRoundedPoints(radius_x: float, radius_y: float, power: float, quality: int):
     points = []
     for i in range(quality + 1):
-        points.append(QPointF((_superSin(2 * math.pi * i / quality, power) + 0) * radius_x,
-                              (_superCos(2 * math.pi * i / quality, power) + 0) * radius_y))
+        points.append(
+            QPointF(
+                (_superSin(2 * math.pi * i / quality, power) + 0) * radius_x,
+                (_superCos(2 * math.pi * i / quality, power) + 0) * radius_y,
+            )
+        )
     return points
 
 
 @lru_cache(maxsize=None)
-def _cachedGetSuperRoundedRectPath(rect_tuple: tuple,
-                                   radius_x: float,
-                                   radius_y: float,
-                                   power: float,
-                                   quality: int) -> QPainterPath:
+def _cachedGetSuperRoundedRectPath(
+    rect_tuple: tuple, radius_x: float, radius_y: float, power: float, quality: int
+) -> QPainterPath:
     rect = QRectF(*rect_tuple)
     path = QPainterPath()
 
@@ -79,8 +81,9 @@ def _cachedGetSuperRoundedRectPath(rect_tuple: tuple,
         quality = max(radius_x, radius_y) // 4 * 4
 
     points = _getSuperRoundedPoints(radius_x, radius_y, power, quality)
-    inner_rect = QRectF(rect.x() + radius_x, rect.y() + radius_y,
-                        rect.width() - 2 * radius_x, rect.height() - 2 * radius_y)
+    inner_rect = QRectF(
+        rect.x() + radius_x, rect.y() + radius_y, rect.width() - 2 * radius_x, rect.height() - 2 * radius_y
+    )
 
     q = quality
 
@@ -114,11 +117,9 @@ def _cachedGetSuperRoundedRectPath(rect_tuple: tuple,
     return path
 
 
-def getSuperRoundedRectPath(rect: QRectF,
-                            radius_x: float,
-                            radius_y: float,
-                            power: float = 5.0,
-                            quality: int = -1) -> QPainterPath:
+def getSuperRoundedRectPath(
+    rect: QRectF, radius_x: float, radius_y: float, power: float = 5.0, quality: int = -1
+) -> QPainterPath:
     """生成并返回一个超椭圆圆角矩形的路径
 
     参数:
@@ -137,6 +138,4 @@ def getSuperRoundedRectPath(rect: QRectF,
     return _cachedGetSuperRoundedRectPath(rect_tuple, radius_x, radius_y, power, quality)
 
 
-__all__ = [
-    "createPainter", "getSuperRoundedRectPath"
-]
+__all__ = ["createPainter", "getSuperRoundedRectPath"]

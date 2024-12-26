@@ -1,18 +1,24 @@
 import random
 
-from PyQt5.QtCore import Qt, QPointF
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLabel
+from PySide6.QtCore import QPointF, Qt
+from PySide6.QtGui import QIcon
 
-from siui.components import SiDenseHContainer, SiTitledWidgetGroup, SiLongPressButton, SiDenseVContainer
-from siui.components.button import SiPushButtonRefactor, SiProgressPushButton, SiLongPressButtonRefactor, SiFlatButton, \
-    SiToggleButtonRefactor, SiSwitchRefactor, SiRadioButtonWithAvatar, SiRadioButtonWithDescription, \
-    SiRadioButtonRefactor
+from siui.components import SiDenseHContainer, SiDenseVContainer, SiTitledWidgetGroup
+from siui.components.button import (
+    SiFlatButton,
+    SiLongPressButtonRefactor,
+    SiProgressPushButton,
+    SiPushButtonRefactor,
+    SiRadioButtonRefactor,
+    SiRadioButtonWithAvatar,
+    SiRadioButtonWithDescription,
+    SiSwitchRefactor,
+    SiToggleButtonRefactor,
+)
 from siui.components.chart import SiTrendChart
 from siui.components.page import SiPage
-from siui.components.slider_ import SiSlider, SiCoordinatePicker2D, SiCoordinatePicker3D
+from siui.components.slider_ import SiCoordinatePicker2D, SiCoordinatePicker3D, SiSlider
 from siui.core import SiGlobal
-from siui.gui import SiFont
 
 from ..option_card import OptionCardPlaneForWidgetDemos
 
@@ -73,13 +79,21 @@ class RefactoredWidgets(SiPage):
             self.demo_progress_button_text = SiProgressPushButton(self)
             self.demo_progress_button_text.setText("进度按钮")
             self.demo_progress_button_text.setToolTip("点击以设置随机进度")
-            self.demo_progress_button_text.clicked.connect(lambda: self.demo_progress_button_text.setProgress(random.random() * 1.3))
-            self.demo_progress_button_text.clicked.connect(lambda: self.demo_progress_button_text_icon.setProgress(random.random() * 1.3))
-            self.demo_progress_button_text.clicked.connect(lambda: self.demo_progress_button_icon.setProgress(random.random() * 1.3))
+            self.demo_progress_button_text.clicked.connect(
+                lambda: self.demo_progress_button_text.setProgress(random.random() * 1.3)
+            )
+            self.demo_progress_button_text.clicked.connect(
+                lambda: self.demo_progress_button_text_icon.setProgress(random.random() * 1.3)
+            )
+            self.demo_progress_button_text.clicked.connect(
+                lambda: self.demo_progress_button_icon.setProgress(random.random() * 1.3)
+            )
             self.demo_progress_button_text.adjustSize()
 
             self.demo_progress_button_text_icon = SiProgressPushButton(self)
-            self.demo_progress_button_text_icon.setSvgIcon(SiGlobal.siui.iconpack.get("ic_fluent_arrow_download_filled"))
+            self.demo_progress_button_text_icon.setSvgIcon(
+                SiGlobal.siui.iconpack.get("ic_fluent_arrow_download_filled")
+            )
             self.demo_progress_button_text_icon.setText("下载中")
             self.demo_progress_button_text_icon.adjustSize()
 
@@ -284,20 +298,20 @@ class RefactoredWidgets(SiPage):
             self.refactor_radio_button = SiRadioButtonWithAvatar(self)
             self.refactor_radio_button.setText("霏泠Ice")
             self.refactor_radio_button.setDescription("114514@nigamna.com")
-            self.refactor_radio_button.setIcon(QIcon("./img/avatar1.png"))
+            self.refactor_radio_button.setIcon(QIcon("examples/Gallery for siui/img/avatar1.png"))
             self.refactor_radio_button.adjustSize()
             self.refactor_radio_button.setChecked(True)
 
             self.refactor_radio_button2 = SiRadioButtonWithAvatar(self)
             self.refactor_radio_button2.setText("我家鸽鸽")
             self.refactor_radio_button2.setDescription("zhiyin@qq.com")
-            self.refactor_radio_button2.setIcon(QIcon("./img/avatar2.png"))
+            self.refactor_radio_button2.setIcon(QIcon("examples/Gallery for siui/img/avatar2.png"))
             self.refactor_radio_button2.adjustSize()
 
             self.refactor_radio_button3 = SiRadioButtonWithAvatar(self)
             self.refactor_radio_button3.setText("你干嘛嗨嗨呦")
             self.refactor_radio_button3.setDescription("1231524232@qq.com")
-            self.refactor_radio_button3.setIcon(QIcon("./img/avatar1.png"))
+            self.refactor_radio_button3.setIcon(QIcon("examples/Gallery for siui/img/avatar1.png"))
             self.refactor_radio_button3.adjustSize()
 
             radio_button_container.addWidget(self.refactor_radio_button)
@@ -377,7 +391,12 @@ class RefactoredWidgets(SiPage):
 
             self.trend_chart = SiTrendChart(self)
             self.trend_chart.resize(900, 340)
-            self.trend_chart.setPointList([QPointF(i, (i/50)**2 * 0 + random.random() * (5 + 25 * ((i + 5) % 20 == 0))) for i in range(-50, 51)])
+            self.trend_chart.setPointList(
+                [
+                    QPointF(i, (i / 50) ** 2 * 0 + random.random() * (5 + 25 * ((i + 5) % 20 == 0)))
+                    for i in range(-50, 51)
+                ]
+            )
             self.trend_chart.setToolTipFunc(lambda x, y: f"起始点：{x}\n振幅：{y}")
             self.trend_chart.setQuality(1)
             self.trend_chart.adjustViewRect()

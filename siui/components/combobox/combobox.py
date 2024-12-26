@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QPoint, Qt, pyqtSignal
+from PySide6.QtCore import QPoint, Qt, Signal
 
 from siui.components.menu.abstracts.ani_manager import AnimationManager
 from siui.components.menu.menu import SiMenu
@@ -12,10 +12,10 @@ from siui.gui.font import SiFont
 
 
 class ABCSiComboBox(SiWidget):
-    indexChanged = pyqtSignal(int)
-    valueChanged = pyqtSignal(object)
-    menuUnfolded = pyqtSignal()
-    menuClosed = pyqtSignal()
+    indexChanged = Signal(int)
+    valueChanged = Signal(object)
+    menuUnfolded = Signal()
+    menuClosed = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

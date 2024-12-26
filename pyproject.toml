@@ -1,22 +1,26 @@
 [project]
 name = "PySide6-SiliconUI"
-version = "0.1.0"
+version = "1.0.1"
 authors = [
     { name = "ChinaIceF", email = "ChinaIceF@outlook.com" },
     { name = "rainzee wang", email = "rainzee.w@gmail.com" },
     {name = "H1DDENADM1N", email = "65646535+H1DDENADM1N@users.noreply.github.com"},
 ]
-description = "A powerful and artistic UI library based on PySide6"
+description = "Default template for PDM package"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { file = "LICENSE", text = "GPLv3"}
 requires-python = "==3.12.*"
 dependencies = [
     "PySide6==6.6.3.1",
+    "typing-extensions>=4.12.2",
+    "python-dateutil>=2.9.0",
+    "setuptools>=75.6.0",
     "numpy==1.26.4",
+    "pyperclip>=1.9.0",
 ]
 
 [project.urls]
-Repository = "https://github.com/ChinaIceF/PyQt-SiliconUI"
+Repository = "hhttps://github.com/H1DDENADM1N/PySide6-SiliconUI"
 
 [tool.pdm]
 distribution = false

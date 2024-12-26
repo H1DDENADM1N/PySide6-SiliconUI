@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QGraphicsOpacityEffect
 
 from siui.components import SiDenseVContainer, SiLabel
 from siui.components.widgets.expands import SiVExpandWidget
@@ -17,7 +17,7 @@ class DenseVContainerBG(SiDenseVContainer):
         self.background = SiLabel(self)
         self.background.setFixedStyleSheet("border-radius: 12px")
         self.background.setColor(SiColor.trans(self.getColor(SiColor.INTERFACE_BG_A), 0.9))
-        
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.background.resize(event.size())
@@ -78,7 +78,7 @@ class StateChangeOverlay(SiVExpandWidget):
 
         self.animation_opacity = SiExpAccelerateAnimation(self)
         self.animation_opacity.setAccelerateFunction(lambda x: (x / 10) ** 3)
-        self.animation_opacity.setFactor(1/2)
+        self.animation_opacity.setFactor(1 / 2)
         self.animation_opacity.setBias(0.01)
         self.animation_opacity.setCurrent(1)
         self.animation_opacity.setTarget(1)
@@ -117,10 +117,9 @@ class LayerOverLays(SiLayer):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self.state_change_overlay.move((self.width() - self.state_change_overlay.width()) // 2,
-                                       int((self.height() - self.state_change_overlay.height()) * 0.785))
-
-        self.state_change_overlay.setContent(
-            "设置窗口大小", f"{self.width()}×{self.height()}", "无快捷键"
+        self.state_change_overlay.move(
+            (self.width() - self.state_change_overlay.width()) // 2,
+            int((self.height() - self.state_change_overlay.height()) * 0.785),
         )
 
+        self.state_change_overlay.setContent("设置窗口大小", f"{self.width()}×{self.height()}", "无快捷键")

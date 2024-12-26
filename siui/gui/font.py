@@ -1,87 +1,63 @@
-from collections.abc import Sequence
-from enum import Enum
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from PySide6.QtGui import QFont
-from siui.core.globals import SiGlobal
 
-# 因DPI缩放而引入的因数
-scale_factor = 1  # TODO: 需要从获取缩放比例的模块中获取
+from siui.core.token import FontStyle, GlobalFont, GlobalFontSize, GlobalFontWeight
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class SiFont:
+    """SiUI Font Class
+
+    You can use low-level API to customize fonts details,
+    or use tokenized global fonts to quickly create fonts.
+    """
+
     @staticmethod
     def getFont(
-            families: Sequence = ["Microsoft YaHei"],
-            size: int = 14,
-            weight: QFont.Weight = QFont.Weight.Normal,
-            italic: bool = False,
+        families: Sequence[str] = ["Segoe UI", "Microsoft YaHei", "San Francisco Fonts", "PingFang SC"]
+        or ["Segoe UI", "Microsoft YaHei", "San Francisco Fonts", "PingFang SC"],
+        size: int = 14,
+        weight: QFont.Weight = QFont.Weight.Normal,
+        italic: bool = False,
     ) -> QFont:
+        """Low-level API for creating font instance
+
+        Application-level configuration takes the highest priority,
+        and it is recommended to use the tokenized Hier-level API.
+
+        Args:
+            - families: 字体族列表，如果指定了应用程序级别的全局配置，则会覆盖默认字体家族
+            - size: 字体大小
+            - weight: 字体粗细
+            - italic: 是否斜体
+
+        Returns:
+            - QFont: 字体实例
+
+        """
         font = QFont()
         font.setFamilies(families)
-        font.setPixelSize(SiFont.scaled_size(size))
+        font.setPixelSize(size)
         font.setWeight(weight)
         font.setItalic(italic)
         return font
 
     @staticmethod
-    def scaled_size(size: int) -> int:
-        return int(size * scale_factor)
+    def fromToken(size: GlobalFontSize, weight: GlobalFontWeight, style: FontStyle) -> QFont:
+        """通过已经令牌化的字体属性构造字体"""
+
+        return SiFont.getFont(size=size.value, weight=weight.value, italic=style == FontStyle.ITALIC)
 
     @staticmethod
-    def fromToken(token) -> QFont:
+    def tokenized(token: GlobalFont) -> QFont:
+        """返回一个已经被令牌化的全局字体"""
+
         try:
-            return token.value
+            return SiFont.fromToken(*token.value)
         except KeyError:
             raise ValueError(f"Invalid token: {token}")
-
-
-class GlobalFont(Enum):
-    # Normal
-    S_NORMAL = SiFont.getFont(size=14, weight=QFont.Weight.Normal, italic=False)
-    M_NORMAL = SiFont.getFont(size=20, weight=QFont.Weight.Normal, italic=False)
-    L_NORMAL = SiFont.getFont(size=24, weight=QFont.Weight.Normal, italic=False)
-    XL_NORMAL = SiFont.getFont(size=32, weight=QFont.Weight.Normal, italic=False)
-
-    S_NORMAL_ITALIC = SiFont.getFont(size=14, weight=QFont.Weight.Normal, italic=True)
-    M_NORMAL_ITALIC = SiFont.getFont(size=20, weight=QFont.Weight.Normal, italic=True)
-    L_NORMAL_ITALIC = SiFont.getFont(size=24, weight=QFont.Weight.Normal, italic=True)
-    XL_NORMAL_ITALIC = SiFont.getFont(size=32, weight=QFont.Weight.Normal, italic=True)
-
-    # Bold
-    S_BOLD = SiFont.getFont(size=14, weight=QFont.Weight.Bold, italic=False)
-    M_BOLD = SiFont.getFont(size=20, weight=QFont.Weight.Bold, italic=False)
-    L_BOLD = SiFont.getFont(size=24, weight=QFont.Weight.Bold, italic=False)
-    XL_BOLD = SiFont.getFont(size=32, weight=QFont.Weight.Bold, italic=False)
-
-    S_BOLD_ITALIC = SiFont.getFont(size=14, weight=QFont.Weight.Bold, italic=True)
-    M_BOLD_ITALIC = SiFont.getFont(size=20, weight=QFont.Weight.Bold, italic=True)
-    L_BOLD_ITALIC = SiFont.getFont(size=24, weight=QFont.Weight.Bold, italic=True)
-    XL_BOLD_ITALIC = SiFont.getFont(size=32, weight=QFont.Weight.Bold, italic=True)
-
-
-class GlobalFontDict:
-    fonts = {}
-
-    fonts["S_NORMAL"] = GlobalFont.S_NORMAL.value
-    fonts["M_NORMAL"] = GlobalFont.M_NORMAL.value
-    fonts["L_NORMAL"] = GlobalFont.L_NORMAL.value
-    fonts["XL_NORMAL"] = GlobalFont.XL_NORMAL.value
-
-    fonts["S_NORMAL_ITALIC"] = GlobalFont.S_NORMAL_ITALIC.value
-    fonts["M_NORMAL_ITALIC"] = GlobalFont.M_NORMAL_ITALIC.value
-    fonts["L_NORMAL_ITALIC"] = GlobalFont.L_NORMAL_ITALIC.value
-    fonts["XL_NORMAL_ITALIC"] = GlobalFont.XL_NORMAL_ITALIC.value
-
-    fonts["S_BOLD"] = GlobalFont.S_BOLD.value
-    fonts["M_BOLD"] = GlobalFont.M_BOLD.value
-    fonts["L_BOLD"] = GlobalFont.L_BOLD.value
-    fonts["XL_BOLD"] = GlobalFont.XL_BOLD.value
-
-    fonts["S_BOLD_ITALIC"] = GlobalFont.S_BOLD_ITALIC.value
-    fonts["M_BOLD_ITALIC"] = GlobalFont.M_BOLD_ITALIC.value
-    fonts["L_BOLD_ITALIC"] = GlobalFont.L_BOLD_ITALIC.value
-    fonts["XL_BOLD_ITALIC"] = GlobalFont.XL_BOLD_ITALIC.value
-
-
-# 合并到全局字体
-SiGlobal.siui.fonts.update(GlobalFontDict.fonts)

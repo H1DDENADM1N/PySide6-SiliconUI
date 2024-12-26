@@ -18,14 +18,14 @@ class DemoOsuPlayerRankingTableManager(ABCSiTabelManager):
     # #10   PP          SiLabel
 
     rank_dict = {
-        "S": "./img/table/ranks/rank_s.png",
-        "SS": "./img/table/ranks/rank_ss.png",
+        "S": "examples/Gallery for siui/img/table/ranks/rank_s.png",
+        "SS": "examples/Gallery for siui/img/table/ranks/rank_ss.png",
     }
 
     country_dict = {
-        "China": "./img/table/flags/CN.png",
-        "United State": "./img/table/flags/UM.png",
-        "Great Britain": "./img/table/flags/GB.png",
+        "China": "examples/Gallery for siui/img/table/flags/CN.png",
+        "United State": "examples/Gallery for siui/img/table/flags/UM.png",
+        "Great Britain": "examples/Gallery for siui/img/table/flags/GB.png",
     }
 
     def _value_read_parser(self, row_index, col_index):
@@ -102,4 +102,3 @@ class DemoOsuPlayerRankingTableManager(ABCSiTabelManager):
             header.container().addWidget(new_label)
 
         header.container().arrangeWidgets()
-

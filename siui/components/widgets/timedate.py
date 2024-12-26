@@ -3,8 +3,8 @@ import datetime
 import time
 
 from dateutil.relativedelta import relativedelta
-from PyQt5.QtCore import QPoint, Qt, pyqtSignal
-from PyQt5.QtGui import QFont
+from PySide6.QtCore import QPoint, Qt, Signal
+from PySide6.QtGui import QFont
 
 from siui.components import SiDenseHContainer, SiDenseVContainer, SiFlashLabel, SiLabel, SiSimpleButton, SiWidget, \
     SiSvgLabel, SiIconLabel
@@ -15,8 +15,8 @@ from siui.gui import SiFont
 
 
 class CalenderDateWidget(SiWidget):
-    entered = pyqtSignal(QPoint)
-    clicked = pyqtSignal(datetime.date)
+    entered = Signal(QPoint)
+    clicked = Signal(datetime.date)
 
     def __init__(self, date: datetime.date, parent):
         super().__init__(parent)
@@ -59,7 +59,7 @@ class CalenderDateWidget(SiWidget):
 
 
 class CalenderWidget(SiDenseVContainer):
-    dateChanged = pyqtSignal(datetime.date)
+    dateChanged = Signal(datetime.date)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -199,7 +199,7 @@ class CalenderWidget(SiDenseVContainer):
 
 
 class SiCalenderView(SiWidget):
-    dateChanged = pyqtSignal(datetime.date)
+    dateChanged = Signal(datetime.date)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -249,7 +249,7 @@ class SiCalenderView(SiWidget):
 
 
 class TimeNumberScroller(SiWidget):
-    valueChanged = pyqtSignal(int)
+    valueChanged = Signal(int)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -339,8 +339,8 @@ class TimeNumberScroller(SiWidget):
 
 
 class TimePickerWidget(SiDenseVContainer):
-    valueChanged = pyqtSignal(datetime.time)
-    editFinished = pyqtSignal()
+    valueChanged = Signal(datetime.time)
+    editFinished = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -439,8 +439,8 @@ class TimePickerWidget(SiDenseVContainer):
 
 
 class SiTimePicker(SiWidget):
-    valueChanged = pyqtSignal(datetime.time)
-    editFinished = pyqtSignal()
+    valueChanged = Signal(datetime.time)
+    editFinished = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -498,8 +498,8 @@ class SiTimePicker(SiWidget):
 
 
 class TimeSpanPickerWidget(SiDenseVContainer):
-    valueChanged = pyqtSignal(datetime.timedelta)
-    editFinished = pyqtSignal()
+    valueChanged = Signal(datetime.timedelta)
+    editFinished = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -599,8 +599,8 @@ class TimeSpanPickerWidget(SiDenseVContainer):
 
 
 class SiTimeSpanPicker(SiWidget):
-    valueChanged = pyqtSignal(datetime.timedelta)
-    editFinished = pyqtSignal()
+    valueChanged = Signal(datetime.timedelta)
+    editFinished = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QPoint, QSize, Qt
+from PySide6.QtCore import QPoint, QSize, Qt
 
 
 class SiQuickAlignmentManager:

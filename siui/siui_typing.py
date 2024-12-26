@@ -9,9 +9,9 @@ Use Python's Type Hint syntax, reference:
 
 from typing import Optional, Union
 
-from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtGui import QColor, QGradient, QPainter, QPen
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import QObject, Qt
+from PySide6.QtGui import QColor, QGradient, QPainter, QPen
+from PySide6.QtWidgets import QWidget
 from typing_extensions import TypeAlias
 
 T_WidgetParent: TypeAlias = Optional[QWidget]

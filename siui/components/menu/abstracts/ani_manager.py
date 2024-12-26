@@ -1,8 +1,8 @@
 import time
 from enum import Enum
 
-from PyQt5.QtWidgets import QApplication, QDesktopWidget
-
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QGuiApplication
 from siui.components.menu.abstracts.menu import ABCSiMenu
 from siui.core import SiColor
 
@@ -20,7 +20,7 @@ class ABCAnimationManager:
 class AnimationManagerPullDown(ABCAnimationManager):
     @staticmethod
     def on_parent_unfolded(parent, x, y):
-        screen_geo = QDesktopWidget().screenGeometry()
+        screen_geo = QGuiApplication.primaryScreen().geometry()
         x = min(max(32, x), screen_geo.width() - parent.sizeHint().width())
         y = min(max(32, y), screen_geo.height() - parent.sizeHint().height())
 
@@ -40,26 +40,25 @@ class AnimationManagerPullDown(ABCAnimationManager):
     @staticmethod
     def on_parent_resized(parent, event):
         size = event.size()
-        parent.flash_layer.setGeometry(parent.margin,
-                                       parent.margin,
-                                       size.width() - parent.margin * 2,
-                                       size.height() - parent.margin * 2)
-        parent.body_frame.setGeometry(parent.margin,
-                                      parent.margin,
-                                      size.width() - parent.margin * 2,
-                                      size.height() - parent.margin * 2)
-        parent.body_panel.resize(size.width() - parent.margin * 2,
-                                 size.height() - parent.margin * 2)
-        parent.body_.setGeometry(parent.padding,
-                                 parent.padding,
-                                 size.width() - parent.margin * 2 - parent.padding * 2,
-                                 size.height() - parent.margin * 2 - parent.padding * 2)
+        parent.flash_layer.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
+        parent.body_frame.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
+        parent.body_panel.resize(size.width() - parent.margin * 2, size.height() - parent.margin * 2)
+        parent.body_.setGeometry(
+            parent.padding,
+            parent.padding,
+            size.width() - parent.margin * 2 - parent.padding * 2,
+            size.height() - parent.margin * 2 - parent.padding * 2,
+        )
 
 
 class AnimationManagerRaiseUp(ABCAnimationManager):
     @staticmethod
     def on_parent_unfolded(parent, x, y):
-        screen_geo = QDesktopWidget().screenGeometry()
+        screen_geo = QGuiApplication.primaryScreen().geometry()
         x = min(max(32, x), screen_geo.width() - parent.sizeHint().width())
         y = min(max(32, y), screen_geo.height() - parent.sizeHint().height())
 
@@ -81,20 +80,19 @@ class AnimationManagerRaiseUp(ABCAnimationManager):
     @staticmethod
     def on_parent_resized(parent, event):
         size = event.size()
-        parent.flash_layer.setGeometry(parent.margin,
-                                       parent.margin,
-                                       size.width() - parent.margin * 2,
-                                       size.height() - parent.margin * 2)
-        parent.body_frame.setGeometry(parent.margin,
-                                      parent.margin,
-                                      size.width() - parent.margin * 2,
-                                      size.height() - parent.margin * 2)
-        parent.body_panel.resize(size.width() - parent.margin * 2,
-                                 size.height() - parent.margin * 2)
-        parent.body_.setGeometry(parent.padding,
-                                 parent.padding,
-                                 size.width() - parent.margin * 2 - parent.padding * 2,
-                                 size.height() - parent.margin * 2 - parent.padding * 2)
+        parent.flash_layer.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
+        parent.body_frame.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
+        parent.body_panel.resize(size.width() - parent.margin * 2, size.height() - parent.margin * 2)
+        parent.body_.setGeometry(
+            parent.padding,
+            parent.padding,
+            size.width() - parent.margin * 2 - parent.padding * 2,
+            size.height() - parent.margin * 2 - parent.padding * 2,
+        )
 
 
 class AnimationManagerExpand(ABCAnimationManager):
@@ -122,35 +120,35 @@ class AnimationManagerExpand(ABCAnimationManager):
         shift = parent.margin + parent.padding
         size = event.size()
 
-        #parent.body().adjustWidgetsGeometry = print
+        # parent.body().adjustWidgetsGeometry = print
         previous_anchor_x, previous_anchor_y = parent.moveAnchor().x(), parent.moveAnchor().y()
-        parent.setMoveAnchor(previous_anchor_x,
-                             int((parent.height() - shift*2) * parent.anchor_rate) + shift)
+        parent.setMoveAnchor(previous_anchor_x, int((parent.height() - shift * 2) * parent.anchor_rate) + shift)
 
         parent.frame_debugging.resize(event.size())
-        parent.flash_layer.setGeometry(parent.margin,
-                                       parent.margin,
-                                       size.width() - parent.margin * 2,
-                                       size.height() - parent.margin * 2)
-        parent.body_frame.setGeometry(parent.margin,
-                                      parent.margin,
-                                      size.width() - parent.margin * 2,
-                                      size.height() - parent.margin * 2)
+        parent.flash_layer.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
+        parent.body_frame.setGeometry(
+            parent.margin, parent.margin, size.width() - parent.margin * 2, size.height() - parent.margin * 2
+        )
         QApplication.processEvents()
         parent.move(parent.pos().x() + previous_anchor_x, parent.pos().y() + previous_anchor_y)
         QApplication.processEvents()
-        parent.body_panel.setGeometry(0,
-                                      parent.moveAnchor().y() - shift - int(parent.body().sizeHint().height() *
-                                                                            parent.anchor_rate),
-                                      size.width() - parent.margin * 2,
-                                      size.height() - parent.margin * 2)
+        parent.body_panel.setGeometry(
+            0,
+            parent.moveAnchor().y() - shift - int(parent.body().sizeHint().height() * parent.anchor_rate),
+            size.width() - parent.margin * 2,
+            size.height() - parent.margin * 2,
+        )
         QApplication.processEvents()
-        parent.body_.setGeometry(parent.padding,
-                                 parent.padding,
-                                 size.width() - parent.margin * 2 - parent.padding * 2,
-                                 size.height() - parent.margin * 2 - parent.padding * 2)
+        parent.body_.setGeometry(
+            parent.padding,
+            parent.padding,
+            size.width() - parent.margin * 2 - parent.padding * 2,
+            size.height() - parent.margin * 2 - parent.padding * 2,
+        )
 
-        #time.sleep(0.5)
+        # time.sleep(0.5)
 
 
 class AnimationManager(Enum):

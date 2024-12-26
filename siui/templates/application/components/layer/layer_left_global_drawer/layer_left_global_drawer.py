@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components import SiLabel, SiTitledWidgetGroup, SiWidget
 from siui.components.slider.slider import SiSliderH
@@ -28,8 +28,10 @@ class LayerLeftGlobalDrawer(SiLayerDrawer):
             self.text_label = SiLabel(self)
             self.text_label.setTextColor(self.getColor(SiColor.TEXT_D))
             self.text_label.setWordWrap(True)
-            self.text_label.setText("这里是全局抽屉，无论在何种情况下，该抽屉被打开时都会令界面发生侧移，保证抽屉正常展开\n\n"
-                                    "不同于其他页面，全局抽屉推荐为唯一的，全局抽屉中的控件推荐为静态的")
+            self.text_label.setText(
+                "这里是全局抽屉，无论在何种情况下，该抽屉被打开时都会令界面发生侧移，保证抽屉正常展开\n\n"
+                "不同于其他页面，全局抽屉推荐为唯一的，全局抽屉中的控件推荐为静态的"
+            )
             self.text_label.setFixedHeight(128)
 
             group.addWidget(self.text_label)

@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 
 from siui.components import SiLabel, SiWidget, SiTitledWidgetGroup
 from siui.components.page import SiPage

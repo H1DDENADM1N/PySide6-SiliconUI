@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components import SiDenseHContainer, SiDenseVContainer, SiLabel, SiPixLabel
 from siui.core import GlobalFont, Si, SiColor
@@ -30,7 +30,7 @@ class LayerMain(SiLayer):
         # 应用内图标
         self.app_icon = SiPixLabel(self)
         self.app_icon.resize(24, 24)
-        self.app_icon.load("./img/logo_new.png")
+        self.app_icon.load("examples/Gallery for siui/img/logo_new.png")
 
         # 应用标题
         self.app_title = SiLabel(self)
@@ -75,7 +75,7 @@ class LayerMain(SiLayer):
         self.page_view.addPage(page, icon, hint, side)
 
     def setPage(self, index):
-        """ Set current page by index """
+        """Set current page by index"""
         self.page_view.stacked_container.setCurrentIndex(index)
 
     def resizeEvent(self, event):

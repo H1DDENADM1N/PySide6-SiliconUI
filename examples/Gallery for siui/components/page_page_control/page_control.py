@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components import (
     SiPushButton,
@@ -30,7 +30,7 @@ class ExamplePageControl(SiPage):
 
             # 侧边栏信息
             self.global_shifting = OptionCardPlaneForWidgetDemos(self)
-            self.global_shifting.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.global_shifting.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                 "/widgets/progress_bar/progress_bar.py")
             self.global_shifting.setTitle("页面偏移")
             self.global_shifting.setFixedWidth(800)

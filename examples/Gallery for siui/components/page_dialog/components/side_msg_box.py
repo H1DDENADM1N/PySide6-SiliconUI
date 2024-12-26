@@ -7,8 +7,7 @@ from siui.templates.application.components.message.box import SiSideMessageBox
 def send_simple_message(type_, auto_close=False, auto_close_duration=1000):
     fold_after = auto_close_duration if auto_close is True else None
     SiGlobal.siui.windows["MAIN_WINDOW"].LayerRightMessageSidebar().send(
-        "这是一条测试消息\n"
-        "比具标题信息更加简洁方便",
+        "这是一条测试消息\n" "比具标题信息更加简洁方便",
         msg_type=type_,
         fold_after=fold_after,
     )
@@ -18,8 +17,8 @@ def send_titled_message(type_, auto_close=False, auto_close_duration=1000):
     fold_after = auto_close_duration if auto_close is True else None
     SiGlobal.siui.windows["MAIN_WINDOW"].LayerRightMessageSidebar().send(
         title="Sent Successfully",
-        text="A titled message has been successfully sent to the sidebar.\n" +
-             "Click this message box for more information.",
+        text="A titled message has been successfully sent to the sidebar.\n"
+        + "Click this message box for more information.",
         msg_type=type_,
         fold_after=fold_after,
     )
@@ -46,7 +45,7 @@ def send_custom_message(type_, auto_close=False, auto_close_duration=1000):
     avatar = SiPixLabel(container)
     avatar.resize(80, 80)
     avatar.setBorderRadius(40)
-    avatar.load("./img/avatar1.png")
+    avatar.load("examples/Gallery for siui/img/avatar1.png")
     avatar.setHint("霏泠Ice")
 
     container_v = SiDenseVContainer(container)

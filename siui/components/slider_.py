@@ -1,31 +1,31 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from PyQt5.QtCore import QEvent, QPoint, QPointF, QRect, QRectF, Qt, pyqtProperty, QSize
-from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
-from PyQt5.QtWidgets import QAbstractSlider, QWidget
+from PySide6.QtCore import Property, QEvent, QPoint, QPointF, QRect, QRectF, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
+from PySide6.QtWidgets import QAbstractSlider, QWidget
 
 from siui.core import SiGlobal, createPainter
 from siui.core.animation import SiExpAnimationRefactor
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 @dataclass
 class SliderStyleData:
     STYLE_TYPES = ["Slider"]
 
-    thumb_idle_color: QColor = QColor("#a681bf")
-    thumb_hover_color: QColor = QColor("#EDE1F4")
+    thumb_idle_color: QColor = field(default_factory=lambda: QColor("#a681bf"))
+    thumb_hover_color: QColor = field(default_factory=lambda: QColor("#EDE1F4"))
     thumb_width: int = 52
     thumb_height: int = 14
 
-    track_color: QColor = QColor("#77568d")
+    track_color: QColor = field(default_factory=lambda: QColor("#77568d"))
     track_height: int = 5
 
-    background_color: QColor = QColor("#1C191F")
+    background_color: QColor = field(default_factory=lambda: QColor("#1C191F"))
 
 
 class SiSlider(QAbstractSlider):
-    class Property:
+    class SiSliderProperty:
         ThumbColor = "thumbColor"
         TrackProgress = "trackProgress"
 
@@ -44,16 +44,16 @@ class SiSlider(QAbstractSlider):
         self._value_to_tooltip_func = self._defaultValueToToolTip
         self._is_draw_track = True
 
-        self.thumb_color_ani = SiExpAnimationRefactor(self, self.Property.ThumbColor)
-        self.thumb_color_ani.init(1/4, 0.01, self._thumb_color, self._thumb_color)
+        self.thumb_color_ani = SiExpAnimationRefactor(self, self.SiSliderProperty.ThumbColor)
+        self.thumb_color_ani.init(1 / 4, 0.01, self._thumb_color, self._thumb_color)
 
-        self.progress_ani = SiExpAnimationRefactor(self, self.Property.TrackProgress)
-        self.progress_ani.init(1/3.5, 0.00001, 0, 0)
+        self.progress_ani = SiExpAnimationRefactor(self, self.SiSliderProperty.TrackProgress)
+        self.progress_ani.init(1 / 3.5, 0.00001, 0, 0)
 
         self.valueChanged.connect(self._onValueChanged)
         self.rangeChanged.connect(self._onRangeChanged)
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def thumbColor(self):
         return self._thumb_color
 
@@ -62,7 +62,7 @@ class SiSlider(QAbstractSlider):
         self._thumb_color = value
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def trackProgress(self):
         return self._track_progress
 
@@ -93,7 +93,7 @@ class SiSlider(QAbstractSlider):
 
     def _onRangeChanged(self, _, __):
         p = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
-        self.setProperty(self.Property.TrackProgress, p)
+        self.setProperty(self.SiSliderProperty.TrackProgress, p)
         self.progress_ani.update()
         self.progress_ani.setCurrentValue(p)
         self.progress_ani.setEndValue(p)
@@ -243,13 +243,13 @@ class SiSlider(QAbstractSlider):
             thumb_rect = QRectF((self.width() - thumb_w) * p, (self.height() - thumb_h) / 2, thumb_w, thumb_h)
         else:
             background_rect = QRectF((self.width() - track_w) / 2, 0, track_w, self.height())
-            track_rect = QRectF((self.width() - track_w) / 2, self.height() * (1-p), track_w, self.height() * p)
-            thumb_rect = QRectF((self.width() - thumb_h) / 2, (self.height() - thumb_w) * (1-p), thumb_h, thumb_w)
+            track_rect = QRectF((self.width() - track_w) / 2, self.height() * (1 - p), track_w, self.height() * p)
+            thumb_rect = QRectF((self.width() - thumb_h) / 2, (self.height() - thumb_w) * (1 - p), thumb_h, thumb_w)
 
         renderHints = (
-                QPainter.RenderHint.SmoothPixmapTransform
-                | QPainter.RenderHint.TextAntialiasing
-                | QPainter.RenderHint.Antialiasing
+            QPainter.RenderHint.SmoothPixmapTransform
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.Antialiasing
         )
 
         with createPainter(self, renderHints) as painter:
@@ -266,25 +266,25 @@ class CoordinatePickerStyleData:
     slider_y_width: int = 64
 
     indicator_size: int = 26
-    indicator_idle_color: QColor = QColor("#a681bf")
-    indicator_hover_color: QColor = QColor("#EDE1F4")
+    indicator_idle_color: QColor = field(default_factory=lambda: QColor("#a681bf"))
+    indicator_hover_color: QColor = field(default_factory=lambda: QColor("#EDE1F4"))
     indicator_outline_weight: int = 10
     indicator_stroke_weight: int = 6
-    indicator_background_color: QColor = QColor("#25222a")
-    indicator_stroke_color: QColor = QColor("#a681bf")
+    indicator_background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
+    indicator_stroke_color: QColor = field(default_factory=lambda: QColor("#a681bf"))
 
     base_line_weight: int = 2
-    base_line_color: QColor = QColor("#3b3143")
+    base_line_color: QColor = field(default_factory=lambda: QColor("#3b3143"))
 
-    xoy_plate_background_color: QColor = QColor("#571c191f")
-    deepest_background_color: QColor = QColor("#1c191f")
+    xoy_plate_background_color: QColor = field(default_factory=lambda: QColor("#571c191f"))
+    deepest_background_color: QColor = field(default_factory=lambda: QColor("#1c191f"))
 
-    background_color: QColor = QColor("#25222a")
+    background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
     background_border_radius: int = 6
 
 
 class SiCoordinatePicker2D(QWidget):
-    class Property:
+    class SiCoordinatePicker2DProperty:
         ProgressX = "progressX"
         ProgressY = "progressY"
         IndicatorRect = "indicatorRect"
@@ -310,14 +310,14 @@ class SiCoordinatePicker2D(QWidget):
         self.slider_x = SiSlider(self)
         self.slider_y = SiSlider(self)
 
-        self.thumb_color_ani = SiExpAnimationRefactor(self, self.Property.ThumbColor)
-        self.thumb_color_ani.init(1/4, 0.01, self._thumb_color, self._thumb_color)
+        self.thumb_color_ani = SiExpAnimationRefactor(self, self.SiCoordinatePicker2DProperty.ThumbColor)
+        self.thumb_color_ani.init(1 / 4, 0.01, self._thumb_color, self._thumb_color)
 
-        self.progress_x_ani = SiExpAnimationRefactor(self, self.Property.ProgressX)
-        self.progress_x_ani.init(1/3.5, 0.00001, 0, 0)
+        self.progress_x_ani = SiExpAnimationRefactor(self, self.SiCoordinatePicker2DProperty.ProgressX)
+        self.progress_x_ani.init(1 / 3.5, 0.00001, 0, 0)
 
-        self.progress_y_ani = SiExpAnimationRefactor(self, self.Property.ProgressY)
-        self.progress_y_ani.init(1/3.5, 0.00001, 0, 0)
+        self.progress_y_ani = SiExpAnimationRefactor(self, self.SiCoordinatePicker2DProperty.ProgressY)
+        self.progress_y_ani.init(1 / 3.5, 0.00001, 0, 0)
 
         self._initStyle()
 
@@ -340,7 +340,7 @@ class SiCoordinatePicker2D(QWidget):
         # self.slider_y.style_data.thumb_idle_color = QColor("#eaa9c4")
         # self.slider_y.style_data.track_color = QColor("#b96f98")
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def thumbColor(self):
         return self._thumb_color
 
@@ -349,7 +349,7 @@ class SiCoordinatePicker2D(QWidget):
         self._thumb_color = value
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def progressX(self):
         return self._progress_x
 
@@ -358,7 +358,7 @@ class SiCoordinatePicker2D(QWidget):
         self._progress_x = value
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def progressY(self):
         return self._progress_y
 
@@ -367,7 +367,7 @@ class SiCoordinatePicker2D(QWidget):
         self._progress_y = value
         self.update()
 
-    @pyqtProperty(QRectF)
+    @Property(QRectF)
     def indicatorRect(self):
         return self._indicator_rect
 
@@ -384,7 +384,7 @@ class SiCoordinatePicker2D(QWidget):
         self.setToolTip(func(self.value()))
 
     def _isMouseInThumbRect(self, pos: QPoint) -> bool:
-        rect: QRect = self.property(self.Property.IndicatorRect)
+        rect: QRect = self.indicatorRect
         return rect.contains(pos)
 
     def _isMousePosValid(self, pos: QPoint) -> bool:
@@ -402,7 +402,7 @@ class SiCoordinatePicker2D(QWidget):
             self.thumb_color_ani.start()
 
     def _updateDraggingAnchor(self) -> None:
-        indicator_outline_rect = self.property(self.Property.IndicatorRect)
+        indicator_outline_rect = self.indicatorRect
         self._dragging_anchor_pos = indicator_outline_rect.center()
 
     def _setValueToMousePos(self, pos: QPoint) -> None:
@@ -412,10 +412,12 @@ class SiCoordinatePicker2D(QWidget):
         progress_x = (pos.x() - slider_y_width - margin) / (self.width() - slider_y_width - margin * 2)
         progress_y = 1 - (pos.y() - margin) / (self.height() - margin * 2 - slider_x_height)
 
-        self.slider_x.setValue(int(self.slider_x.minimum() +
-                                   (self.slider_x.maximum() - self.slider_x.minimum()) * progress_x))
-        self.slider_y.setValue(int(self.slider_y.minimum() +
-                                   (self.slider_y.maximum() - self.slider_y.minimum()) * progress_y))
+        self.slider_x.setValue(
+            int(self.slider_x.minimum() + (self.slider_x.maximum() - self.slider_x.minimum()) * progress_x)
+        )
+        self.slider_y.setValue(
+            int(self.slider_y.minimum() + (self.slider_y.maximum() - self.slider_y.minimum()) * progress_y)
+        )
 
     def _onSliderXValueChanged(self, _) -> None:
         self.progress_x_ani.setEndValue(self._progressSliderX())
@@ -460,7 +462,7 @@ class SiCoordinatePicker2D(QWidget):
         d = self.style_data.indicator_outline_weight
         indicator_rect = QRectF(x, y, indicator_size, indicator_size)
         indicator_outline_rect = QRectF(x - d, y - d, indicator_size + d * 2, indicator_size + d * 2)
-        self.setProperty(self.Property.IndicatorRect, indicator_outline_rect)
+        self.setProperty(self.SiCoordinatePicker2DProperty.IndicatorRect, indicator_outline_rect)
 
         painter.setBrush(self.style_data.background_color)
         painter.drawPath(self._drawIndicatorPath(indicator_outline_rect))
@@ -487,8 +489,12 @@ class SiCoordinatePicker2D(QWidget):
     def resizeEvent(self, a0):
         super().resizeEvent(a0)
         self.slider_y.setGeometry(0, 0, self.slider_y.width(), self.height() - self.slider_x.height())
-        self.slider_x.setGeometry(self.slider_y.width(), self.height() - self.slider_x.height(),
-                                  self.width() - self.slider_y.width(), self.slider_x.height())
+        self.slider_x.setGeometry(
+            self.slider_y.width(),
+            self.height() - self.slider_x.height(),
+            self.width() - self.slider_y.width(),
+            self.slider_x.height(),
+        )
 
     def mousePressEvent(self, a0):
         super().mousePressEvent(a0)
@@ -545,13 +551,19 @@ class SiCoordinatePicker2D(QWidget):
         return super().event(event)
 
     def enterEvent(self, a0):
-        super().enterEvent(a0)
-        self._showToolTip()
-        self._updateToolTip()
+        try:
+            super().enterEvent(a0)
+            self._showToolTip()
+            self._updateToolTip()
+        except TypeError:
+            pass
 
     def leaveEvent(self, a0):
-        super().leaveEvent(a0)
-        self._hideToolTip()
+        try:
+            super().leaveEvent(a0)
+            self._hideToolTip()
+        except TypeError:
+            pass
 
     def paintEvent(self, a0):
         slider_x_height = self.style_data.slider_y_width
@@ -559,9 +571,9 @@ class SiCoordinatePicker2D(QWidget):
         background_rect = QRectF(slider_y_width, 0, self.width() - slider_y_width, self.height() - slider_x_height)
 
         renderHints = (
-                QPainter.RenderHint.SmoothPixmapTransform
-                | QPainter.RenderHint.TextAntialiasing
-                | QPainter.RenderHint.Antialiasing
+            QPainter.RenderHint.SmoothPixmapTransform
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.Antialiasing
         )
 
         with createPainter(self, renderHints) as painter:
@@ -571,7 +583,7 @@ class SiCoordinatePicker2D(QWidget):
 
 
 class SiCoordinatePicker3D(SiCoordinatePicker2D):
-    class Property:
+    class SiCoordinatePicker3DProperty:
         ProgressX = "progressX"
         ProgressY = "progressY"
         ProgressZ = "progressZ"
@@ -587,12 +599,12 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
         self.slider_z = SiSlider(self)
         self.slider_z.setVisible(False)
 
-        self.progress_z_ani = SiExpAnimationRefactor(self, self.Property.ProgressZ)
-        self.progress_z_ani.init(1/4, 0.00001, 0, 0)
+        self.progress_z_ani = SiExpAnimationRefactor(self, self.SiCoordinatePicker3DProperty.ProgressZ)
+        self.progress_z_ani.init(1 / 4, 0.00001, 0, 0)
 
         self.slider_z.valueChanged.connect(self._onSliderZValueChanged)
 
-    @pyqtProperty(float)
+    @Property(float)
     def progressZ(self):
         return self._progress_z
 
@@ -603,7 +615,8 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
 
     def _updateToolTip(self, flash: bool = True) -> None:
         self.setToolTip(
-            self._value_to_tooltip_func(self.slider_x.value(), self.slider_y.value(), self.slider_z.value()))
+            self._value_to_tooltip_func(self.slider_x.value(), self.slider_y.value(), self.slider_z.value())
+        )
 
         tool_tip_window = SiGlobal.siui.windows.get("TOOL_TIP")
         if tool_tip_window is not None and tool_tip_window.nowInsideOf() == self:
@@ -658,7 +671,7 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
         d = self.style_data.indicator_outline_weight
         indicator_rect = QRectF(x, y, indicator_size, indicator_size)
         indicator_outline_rect = QRectF(x - d, y - d, indicator_size + d * 2, indicator_size + d * 2)
-        self.setProperty(self.Property.IndicatorRect, indicator_outline_rect)
+        self.setProperty(self.SiCoordinatePicker3DProperty.IndicatorRect, indicator_outline_rect)
 
         # painter.setBrush(self.style_data.background_color)
         # painter.drawPath(self._drawIndicatorPath(indicator_outline_rect))
@@ -689,9 +702,9 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
         buffer.fill(Qt.transparent)
 
         renderHints = (
-                QPainter.RenderHint.SmoothPixmapTransform
-                | QPainter.RenderHint.TextAntialiasing
-                | QPainter.RenderHint.Antialiasing
+            QPainter.RenderHint.SmoothPixmapTransform
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.Antialiasing
         )
 
         with createPainter(buffer, renderHints) as painter:
@@ -705,13 +718,21 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
             self._drawBackgroundRect(painter, background_rect)
 
             painter.save()
-            painter.translate(QPointF(background_rect.width() * (1 - b) / 2 + self.style_data.slider_y_width,
-                                      background_rect.height() * (1 - b) / 2))
+            painter.translate(
+                QPointF(
+                    background_rect.width() * (1 - b) / 2 + self.style_data.slider_y_width,
+                    background_rect.height() * (1 - b) / 2,
+                )
+            )
             painter.scale(b, b)
             self._drawDeepestBackgroundRect(painter, buffer_rect)
 
             painter.restore()
-            painter.translate(QPointF(background_rect.width() * (1 - a) / 2 + self.style_data.slider_y_width,
-                                      background_rect.height() * (1 - a) / 2))
+            painter.translate(
+                QPointF(
+                    background_rect.width() * (1 - a) / 2 + self.style_data.slider_y_width,
+                    background_rect.height() * (1 - a) / 2,
+                )
+            )
             painter.scale(a, a)
             painter.drawPixmap(0, 0, buffer)

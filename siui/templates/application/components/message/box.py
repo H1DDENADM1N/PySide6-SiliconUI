@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PySide6.QtCore import Qt, QTimer, Signal
 
 from siui.components.widgets.label import SiLabel, SiSvgLabel
 from siui.components.widgets.button import SiSimpleButton
@@ -10,7 +10,7 @@ from siui.core import Si
 
 
 class SiSideMessageContent(SiWidget):
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class SiSideMessageContent(SiWidget):
             SiColor.SIDE_MSG_THEME_SUCCESS,
             SiColor.SIDE_MSG_THEME_INFO,
             SiColor.SIDE_MSG_THEME_WARNING,
-            SiColor.SIDE_MSG_THEME_ERROR
+            SiColor.SIDE_MSG_THEME_ERROR,
         ]
 
         self.background = SiLabel(self)
@@ -48,7 +48,7 @@ class SiSideMessageContent(SiWidget):
         self.flash_layer.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.flash_layer.setFixedStyleSheet("border-radius: 6px")
         self.flash_layer.setColor(SiColor.trans(self.getColor(SiColor.SIDE_MSG_FLASH), 0))
-        self.flash_layer.animationGroup().fromToken("color").setFactor(1/8)
+        self.flash_layer.animationGroup().fromToken("color").setFactor(1 / 8)
         self.flash_layer.animationGroup().fromToken("color").setBias(0.001)
 
         self.reloadStyleSheet()
@@ -82,22 +82,17 @@ class SiSideMessageContent(SiWidget):
         self.background.resize(event.size().width(), event.size().height())
         self.flash_layer.resize(event.size())
 
-        self.panel.setGeometry(self.theme_wing_width,
-                               0,
-                               event.size().width() - self.theme_wing_width,
-                               event.size().height() - 1)
+        self.panel.setGeometry(
+            self.theme_wing_width, 0, event.size().width() - self.theme_wing_width, event.size().height() - 1
+        )
 
         self.theme_icon.move(0, (event.size().height() - self.theme_icon.height()) // 2)
 
-        self.container_.setGeometry(self.theme_wing_width,
-                                    0,
-                                    event.size().width() - self.theme_wing_width - 32,
-                                    event.size().height() - 1)
+        self.container_.setGeometry(
+            self.theme_wing_width, 0, event.size().width() - self.theme_wing_width - 32, event.size().height() - 1
+        )
 
-        self.close_button.setGeometry(self.width() - self.theme_wing_width - 2,
-                                      2,
-                                      32,
-                                      self.height() - 4)
+        self.close_button.setGeometry(self.width() - self.theme_wing_width - 2, 2, 32, self.height() - 4)
 
     def enterEvent(self, a0):
         super().enterEvent(a0)
@@ -118,7 +113,7 @@ class SiSideMessageContent(SiWidget):
 
 
 class SiSideMessageBox(SiWidget):
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

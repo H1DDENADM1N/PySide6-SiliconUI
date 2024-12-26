@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components import SiTitledWidgetGroup, SiLabel, SiDenseHContainer, SiDenseVContainer, SiDividedHContainer, \
     SiDividedVContainer, SiFlowContainer, SiDraggableLabel, SiSimpleButton, SiPushButton, SiMasonryContainer
@@ -52,7 +52,7 @@ class ExampleContainer(SiPage):
 
             # 水平密堆积容器
             self.dense_h_container = OptionCardPlaneForWidgetDemos(self)
-            self.dense_h_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.dense_h_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                     "/widgets/progress_bar/progress_bar.py")
             self.dense_h_container.setTitle("水平密堆积容器")
 
@@ -74,7 +74,7 @@ class ExampleContainer(SiPage):
 
             # 竖直密堆积容器
             self.dense_v_container = OptionCardPlaneForWidgetDemos(self)
-            self.dense_v_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.dense_v_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                     "/widgets/progress_bar/progress_bar.py")
             self.dense_v_container.setTitle("竖直密堆积容器")
 
@@ -100,7 +100,7 @@ class ExampleContainer(SiPage):
 
             # 水平分割容器
             self.divided_h_container = OptionCardPlaneForWidgetDemos(self)
-            self.divided_h_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.divided_h_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                     "/widgets/progress_bar/progress_bar.py")
             self.divided_h_container.setTitle("水平分割容器")
 
@@ -148,7 +148,7 @@ class ExampleContainer(SiPage):
 
             # 垂直分割容器
             self.divided_v_container = OptionCardPlaneForWidgetDemos(self)
-            self.divided_v_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.divided_v_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                     "/widgets/progress_bar/progress_bar.py")
             self.divided_v_container.setTitle("垂直分割容器")
 
@@ -208,7 +208,7 @@ class ExampleContainer(SiPage):
 
             # 流式布局
             self.flow_container = OptionCardPlaneForWidgetDemos(self)
-            self.flow_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.flow_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                  "/widgets/progress_bar/progress_bar.py")
             self.flow_container.setTitle("经典流式布局容器")
             self.flow_container.setAdditionalDescription("支持拖拽")
@@ -270,7 +270,7 @@ class ExampleContainer(SiPage):
 
             # 瀑布流
             self.masonry_container = OptionCardPlaneForWidgetDemos(self)
-            self.masonry_container.setSourceCodeURL("https://github.com/ChinaIceF/PyQt-SiliconUI/blob/main/siui/components"
+            self.masonry_container.setSourceCodeURL("https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components"
                                                     "/widgets/progress_bar/progress_bar.py")
             self.masonry_container.setTitle("瀑布流容器")
             self.masonry_container.setAdditionalDescription("支持拖拽")

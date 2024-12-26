@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer
 
 from ..layer import SiLayer
 
@@ -19,7 +19,7 @@ class LayerChildPage(SiLayer):
             return
 
         self.child_page = page
-        self.child_page.animationGroup().fromToken("move").setFactor(1/4)
+        self.child_page.animationGroup().fromToken("move").setFactor(1 / 4)
         self.child_page.animationGroup().fromToken("move").setBias(0.5)
         self.child_page.setParent(self)
         self.child_page.adjustSize()
@@ -37,7 +37,9 @@ class LayerChildPage(SiLayer):
 
     def showChildPage(self):
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.child_page.moveTo((self.width() - self.childPage().width()) // 2, self.height() - self.childPage().height())
+        self.child_page.moveTo(
+            (self.width() - self.childPage().width()) // 2, self.height() - self.childPage().height()
+        )
 
     def closeChildPage(self):
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -50,4 +52,6 @@ class LayerChildPage(SiLayer):
         super().resizeEvent(event)
         if self.child_page is not None:
             self.child_page.adjustSize()
-            self.child_page.move((self.width() - self.childPage().width()) // 2, self.height() - self.childPage().height())
+            self.child_page.move(
+                (self.width() - self.childPage().width()) // 2, self.height() - self.childPage().height()
+            )

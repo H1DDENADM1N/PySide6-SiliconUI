@@ -1,9 +1,9 @@
 import random
 from typing import Union
 
-from PyQt5.Qt import QColor
-from PyQt5.QtCore import Qt, QTimer, QSize
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QWidget
+from PySide6.QtCore import QSize, Qt, QTimer
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QGraphicsDropShadowEffect, QWidget
 
 from siui.components.widgets.abstracts.container import ABCSiDividedContainer
 from siui.components.widgets.abstracts.widget import SiWidget
@@ -478,7 +478,7 @@ class SiDividedHContainer(ABCSiDividedContainer):
             elif (alignment & Qt.AlignRight) == Qt.AlignRight:
                 x = x_counter + (section.width() - widget.width())
             else:
-                x = x_counter   # use Qt.AlignLeft if horizontal alignment arg is not assign
+                x = x_counter  # use Qt.AlignLeft if horizontal alignment arg is not assign
 
             if (alignment & Qt.AlignTop) == Qt.AlignTop:
                 y = 0
@@ -487,7 +487,7 @@ class SiDividedHContainer(ABCSiDividedContainer):
             elif (alignment & Qt.AlignBottom) == Qt.AlignBottom:
                 y = section.height() - widget.height()
             else:
-                y = 0   # use Qt.AlignTop if vertical alignment arg is not assign
+                y = 0  # use Qt.AlignTop if vertical alignment arg is not assign
 
             widget.move(x, y)
             x_counter += section.width() + self.spacing()
@@ -511,7 +511,7 @@ class SiDividedVContainer(ABCSiDividedContainer):
             elif (alignment & Qt.AlignRight) == Qt.AlignRight:
                 x = section.width() - widget.width()
             else:
-                x = 0   # use Qt.AlignLeft if horizontal alignment arg is not assign
+                x = 0  # use Qt.AlignLeft if horizontal alignment arg is not assign
 
             if (alignment & Qt.AlignTop) == Qt.AlignTop:
                 y = y_counter
@@ -519,7 +519,7 @@ class SiDividedVContainer(ABCSiDividedContainer):
                 y = y_counter + (section.height() - widget.height()) // 2
             elif (alignment & Qt.AlignBottom) == Qt.AlignBottom:
                 y = y_counter + (section.height() - widget.height())
-            else:   # use Qt.AlignTop if vertical alignment arg is not assign
+            else:  # use Qt.AlignTop if vertical alignment arg is not assign
                 y = y_counter
 
             widget.move(x, y)
@@ -609,22 +609,24 @@ class ABCSiFlowContainer(SiWidget):
             self.spacing[1] = vertical
 
     def widgets(self):
-        """ Get the widgets of this container """
+        """Get the widgets of this container"""
         return self.widgets_
 
     def addWidget(self, widget, arrange=True, ani=True):
-        """ Add widget to this container """
+        """Add widget to this container"""
         widget.setParent(self)
         self.widgets_.append(widget)
         if arrange is True:
             self.arrangeWidgets(ani=ani)
 
-    def removeWidget(self,
-                     widget,
-                     has_existence_check: bool = True,
-                     delete_later: bool = True,
-                     fade_out: bool = False,
-                     fade_out_delay: int = 0):
+    def removeWidget(
+        self,
+        widget,
+        has_existence_check: bool = True,
+        delete_later: bool = True,
+        fade_out: bool = False,
+        fade_out_delay: int = 0,
+    ):
         """
         Remove a widget in self.widgets()
         :param widget: widget you want to remove
@@ -652,11 +654,11 @@ class ABCSiFlowContainer(SiWidget):
             pass
 
     def arrangeWidgets(self, ani=True):
-        """ Arrange widgets as its order in self.widgets() """
+        """Arrange widgets as its order in self.widgets()"""
         raise NotImplementedError("arrangeWidgets method must be rewrote.")
 
     def shuffle(self, **kwargs):
-        """ shuffle widgets and rearrange them """
+        """shuffle widgets and rearrange them"""
         random.shuffle(self.widgets_)
         self.arrangeWidgets(**kwargs)
 
@@ -674,13 +676,14 @@ class ABCSiFlowContainer(SiWidget):
         if from_index > to_index:
             self.widgets_ = self.widgets_[:to_index] + [widget] + self.widgets_[to_index:]
         else:
-            self.widgets_ = self.widgets_[:to_index + 1] + [widget] + self.widgets_[to_index + 1:]
+            self.widgets_ = self.widgets_[: to_index + 1] + [widget] + self.widgets_[to_index + 1 :]
 
         self.widgets_.pop(self.widgets_.index(None))
         self.arrangeWidgets(**kwargs)
 
     def regDraggableWidget(self, widget):
-        """ register a widget as a draggable widget """
+        """register a widget as a draggable widget"""
+
         def on_dragging(pos):
             if self.dragging_widget is None:
                 # drop shadow effect
@@ -703,12 +706,15 @@ class ABCSiFlowContainer(SiWidget):
             if widget == dragged_widget:
                 continue
 
-            if (widget.geometry().contains(center_point) and
-                    (widget.animationGroup().fromToken("move").isActive() is False)):
+            if widget.geometry().contains(center_point) and (
+                widget.animationGroup().fromToken("move").isActive() is False
+            ):
                 # insert dragged widget to where this widget is.
-                self.insertToByIndex(self.widgets().index(dragged_widget),
-                                     self.widgets().index(widget),
-                                     no_arrange_exceptions=[dragged_widget])
+                self.insertToByIndex(
+                    self.widgets().index(dragged_widget),
+                    self.widgets().index(widget),
+                    no_arrange_exceptions=[dragged_widget],
+                )
                 break
 
     def mouseReleaseEvent(self, ev):
@@ -739,13 +745,15 @@ class SiFlowContainer(ABCSiFlowContainer):
         if rearrange:
             self.arrangeWidgets(ani=True)
 
-    def arrangeWidgets(self,
-                       ani: bool = True,
-                       all_fade_in: bool = False,
-                       fade_in_delay: int = 200,
-                       fade_in_delay_cumulate_rate: int = 10,
-                       no_arrange_exceptions: Union[list, None] = None,
-                       no_ani_exceptions: Union[list, None] = None):
+    def arrangeWidgets(
+        self,
+        ani: bool = True,
+        all_fade_in: bool = False,
+        fade_in_delay: int = 200,
+        fade_in_delay_cumulate_rate: int = 10,
+        no_arrange_exceptions: Union[list, None] = None,
+        no_ani_exceptions: Union[list, None] = None,
+    ):
         """
         :param ani: whether widgets perform animation when arranging them
         :param all_fade_in: let all widgets fade in when arranging them
@@ -810,12 +818,13 @@ class SiMasonryContainer(ABCSiFlowContainer):
     def setColumnWidth(self, width):
         self.column_width = width
 
-    def arrangeWidgets(self,
-                       ani=True,
-                       no_arrange_exceptions: Union[list, None] = None,
-                       no_ani_exceptions: Union[list, None] = None,
-                       adjust_size: bool = True):
-
+    def arrangeWidgets(
+        self,
+        ani=True,
+        no_arrange_exceptions: Union[list, None] = None,
+        no_ani_exceptions: Union[list, None] = None,
+        adjust_size: bool = True,
+    ):
         used_height = [0 for _ in range(self.columns)]
         ani_delay_counter = 0
         if no_arrange_exceptions is None:
@@ -830,7 +839,8 @@ class SiMasonryContainer(ABCSiFlowContainer):
                 if (ani is True) and (widget not in no_ani_exceptions):
                     widget.animationGroup().fromToken("move").stop()
                     widget.animationGroup().fromToken("move").setTarget(
-                        [column_index * (self.column_width + self.spacing[0]), used_height[column_index]])
+                        [column_index * (self.column_width + self.spacing[0]), used_height[column_index]]
+                    )
                     widget.animationGroup().fromToken("move").start()
                 else:
                     widget.animationGroup().fromToken("move").stop()
@@ -844,7 +854,7 @@ class SiMasonryContainer(ABCSiFlowContainer):
             self.adjustSize()
 
     def adjustColumnAmount(self, width=None):
-        """ Adjust the column amount of this container based on its width. """
+        """Adjust the column amount of this container based on its width."""
         if width is None:
             width = self.width()
         else:
@@ -854,7 +864,7 @@ class SiMasonryContainer(ABCSiFlowContainer):
         self.arrangeWidgets()
 
     def calculateColumnAmount(self, width):
-        """ Calculate column amount based on width provided. """
+        """Calculate column amount based on width provided."""
         return (width + self.spacing[0]) // (self.column_width + self.spacing[0])
 
     def adjustSize(self):

@@ -3,59 +3,79 @@ from PySide6.QtGui import QPainter, QPainterPath, QPixmap
 from PySide6.QtSvgWidgets import QSvgWidget
 
 from siui.components.widgets.abstracts.label import ABCAnimatedLabel
-from siui.core.globals import SiGlobal
+from siui.core import GlobalFont, Si, SiColor, SiQuickAlignmentManager
+from siui.gui import SiFont
 
 
 class SiLabel(ABCAnimatedLabel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        super().setFont(SiGlobal.siui.fonts["S_NORMAL"])
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        super().setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
+
+
+class SiFlashLabel(SiLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.flash_color = self.getColor(SiColor.BUTTON_FLASH)
+        self.flash_layer = SiLabel(self)
+        self.flash_layer.animationGroup().fromToken("color").setFactor(1 / 16)
+
+    def setFlashColor(self, code):
+        self.flash_color = code
+
+    def flash(self):
+        self.flash_layer.setColor(SiColor.trans(self.flash_color, 1.0))
+        self.flash_layer.setColorTo(SiColor.trans(self.flash_color, 0))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.flash_layer.resize(event.size())
+
 
 class SiPixLabel(SiLabel):
-    """
-    为显示图片提供支持的标签，支持图片的圆角处理
-    """
-
     def __init__(self, parent):
         super().__init__(parent)
 
         self.border_radius = 32
         self.blur_radius = 0
-        self.path = None
+        self.path_ = None
+        self.offset = QPoint(0, 0)
+
+    def setOffset(self, x: int, y: int):
+        self.offset.setX(x)
+        self.offset.setY(y)
 
     def setBorderRadius(self, r: int):
-        """
-        设置图片圆角半径
-        :param r: 圆角半径
-        :return:
-        """
+        """set the border radius of the shown image"""
         self.border_radius = r
 
+    def path(self):
+        return self.path_
+
     def load(self, path: str):
-        """
-        加载图片
-        :param path: 图片路径
-        :return:
-        """
-        self.path = path
+        """load the image, `draw()` will be Implicitly called."""
+        self.path_ = path
         self.draw()
 
     def draw(self):
-        """
-        绘制图像，只有在调用 load 方法后才有效
-        :return:
-        """
-        if self.path is None:
+        """Draw the image，you can only call it after run `load(path)`"""
+        if self.path_ is None:
             return
 
         w, h = self.width(), self.height()
 
-        self.target = QPixmap(self.size())
-        self.target.fill(Qt.transparent)
+        target = QPixmap(self.size())
+        target.fill(Qt.transparent)
 
-        p = QPixmap(self.path).scaled(w, h, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+        p = QPixmap(self.path_)
+        if p.isNull():
+            print(f"Failed to load image from: {self.path_}")
+            return
+        p = p.scaled(w, h, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
 
-        painter = QPainter(self.target)
+        painter = QPainter(target)
+        painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
 
@@ -63,8 +83,11 @@ class SiPixLabel(SiLabel):
         path.addRoundedRect(0, 0, self.width(), self.height(), self.border_radius, self.border_radius)
 
         painter.setClipPath(path)
-        painter.drawPixmap(0, 0, p)
-        self.setPixmap(self.target)
+        pos = SiQuickAlignmentManager.toPos(self.size(), p.size(), self.alignment())
+        painter.drawPixmap(pos.x() + self.offset.x(), pos.y() + self.offset.y(), p)
+        painter.end()
+
+        self.setPixmap(target)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -81,6 +104,8 @@ class SiSvgLabel(SiLabel):
 
         # 创建 QSvgWidget
         self.svg_widget = QSvgWidget(self)
+        self.setSvgSize(20, 20)
+        self.resize(24, 24)
 
     def load(self, path_or_data):
         """
@@ -120,13 +145,13 @@ class SiIconLabel(SiLabel):
         self.has_text_flag = False  # 设置文本后为真
 
         # 创建图标标签
-        self.icon = SiSvgLabel(self)
-        self.icon.resize(16, 16)
-        self.icon.setSvgSize(16, 16)
+        self.icon_ = SiSvgLabel(self)
+        self.icon_.resize(24, 24)
+        self.icon_.setSvgSize(20, 20)
 
         # 创建文本标签
         self.text_label = SiLabel(self)
-        self.text_label.setAutoAdjustSize(True)
+        self.text_label.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
         self.text_label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self.text_label.setFixedHeight(20)  # 固定高度
 
@@ -136,6 +161,12 @@ class SiIconLabel(SiLabel):
     def setFixedStyleSheet(self, fixed_stylesheet: str):
         self.text_label.setStyleSheet(fixed_stylesheet)
 
+    def icon(self):
+        return self.icon_
+
+    def label(self):
+        return self.text_label
+
     def load(self, path_or_data):
         """
         从字符串或者文件加载 svg 数据
@@ -143,7 +174,7 @@ class SiIconLabel(SiLabel):
         :return:
         """
         self.has_icon_flag = True
-        self.icon.load(path_or_data)
+        self.icon_.load(path_or_data)
         self.adjustSize()  # 保证布局正常
 
     def setSvgSize(self, w, h):
@@ -152,8 +183,8 @@ class SiIconLabel(SiLabel):
         :param w: 宽度
         :param h: 高度
         """
-        self.icon.resize(w, h)  # 这里直接设为一样，避免边缘切割
-        self.icon.setSvgSize(w, h)
+        self.icon_.resize(w, h)  # 这里直接设为一样，避免边缘切割
+        self.icon_.setSvgSize(w, h)
         self.adjustSize()  # 保证布局正常
 
     def setFont(self, a0):
@@ -171,11 +202,11 @@ class SiIconLabel(SiLabel):
         preferred_width = (
             int(self.has_text_flag) * self.text_label.width()
             + int(self.has_text_flag and self.has_icon_flag) * 4
-            + int(self.has_icon_flag) * self.icon.width()
+            + int(self.has_icon_flag) * self.icon_.width()
         )
 
         preferred_height = max(
-            int(self.has_text_flag) * self.text_label.height(), int(self.has_icon_flag) * self.icon.height()
+            int(self.has_text_flag) * self.text_label.height(), int(self.has_icon_flag) * self.icon_.height()
         )
 
         self.resize(preferred_width, preferred_height)
@@ -185,7 +216,7 @@ class SiIconLabel(SiLabel):
         size = event.size()
         w, h = size.width(), size.height()
 
-        self.icon.move(0, (h - self.icon.height()) // 2)
+        self.icon_.move(0, (h - self.icon_.height()) // 2)
         self.text_label.move(
             w - self.text_label.width(), (h - self.text_label.height()) // 2 - 1
         )  # 减一调整显示位置归正

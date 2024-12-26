@@ -1,12 +1,12 @@
 # 代码规范
 创建于 2024.10.25
 
-为了提高可读性和可维护性，新编写的 PyQt-SiliconUI 代码将遵守以下规范。
+为了提高可读性和可维护性，新编写的 PySide6-SiliconUI 代码将遵守以下规范。
 
 ## 命名规范
 ### 命名法
 * 变量名采用 snake_case。
-* 方法名沿袭 PyQt 特点，采用 lowerCamelCase
+* 方法名沿袭 PySide6 特点，采用 lowerCamelCase
 * 类名采用 UpperCamelCase
 * 旗标类、枚举类和常量采用全大写命名
 

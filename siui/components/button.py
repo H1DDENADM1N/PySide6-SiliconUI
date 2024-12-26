@@ -2,10 +2,11 @@
 # replace button once it's done. Now it's draft, code may be ugly and verbose temporarily.
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from PyQt5.QtCore import (
+from PySide6.QtCore import (
+    Property,
     QEvent,
     QObject,
     QPointF,
@@ -14,10 +15,9 @@ from PyQt5.QtCore import (
     QSize,
     Qt,
     QTimer,
-    pyqtProperty,
-    pyqtSignal,
+    Signal,
 )
-from PyQt5.QtGui import (
+from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
@@ -29,17 +29,16 @@ from PyQt5.QtGui import (
     QPen,
     QPixmap,
 )
-from PyQt5.QtSvg import QSvgRenderer
-from PyQt5.QtWidgets import QLabel, QPushButton, QRadioButton
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtWidgets import QLabel, QPushButton, QRadioButton
 from typing_extensions import Self
 
 from siui.core import GlobalFont, SiGlobal, createPainter
 from siui.core.animation import SiExpAnimationRefactor
-from siui.core.painter import getSuperRoundedRectPath
 from siui.gui import SiFont
 
 if TYPE_CHECKING:
-    from siui.typing import T_WidgetParent
+    from siui.siui_typing import T_WidgetParent
 
 
 class SiStyleAttr:
@@ -179,7 +178,7 @@ class ToggleButtonStyleData(ButtonStyleData):
 
 
 class ABCButton(QPushButton):
-    class Property:
+    class ABCButtonProperty:
         ScaleFactor = "scaleFactor"
         TextColor = "textColor"
         ButtonRectColor = "buttonRectColor"
@@ -200,12 +199,12 @@ class ABCButton(QPushButton):
         self._button_rect_color = None
         self._text_color = None
 
-        self.highlight_ani = SiExpAnimationRefactor(self, self.Property.HighlightRectColor)
+        self.highlight_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.HighlightRectColor)
         self.highlight_ani.init(1 / 8, 0.2, self._highlight_rect_color, self._highlight_rect_color)
 
         self.clicked.connect(self._onButtonClicked)
 
-    @pyqtProperty(float)
+    @Property(float)
     def scaleFactor(self):
         return self._scale_factor
 
@@ -214,7 +213,7 @@ class ABCButton(QPushButton):
         self._scale_factor = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def highlightRectColor(self):
         return self._highlight_rect_color
 
@@ -223,7 +222,7 @@ class ABCButton(QPushButton):
         self._highlight_rect_color = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def buttonRectColor(self):
         return self._button_rect_color
 
@@ -232,7 +231,7 @@ class ABCButton(QPushButton):
         self._button_rect_color = color
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def backgroundRectColor(self):
         return self._background_rect_color
 
@@ -241,7 +240,7 @@ class ABCButton(QPushButton):
         self._background_rect_color = color
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def textColor(self):
         return self._text_color
 
@@ -250,7 +249,7 @@ class ABCButton(QPushButton):
         self._text_color = color
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def progress(self):
         return self._progress
 
@@ -259,7 +258,7 @@ class ABCButton(QPushButton):
         self._progress = max(0.0, min(value, 1.0))
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def progressRectColor(self):
         return self._progress_rect_color
 
@@ -302,7 +301,7 @@ class ABCButton(QPushButton):
 
     def sizeHint(self) -> QSize:
         font_metrics = QFontMetrics(self.font())
-        text_width = font_metrics.width(self.text())
+        text_width = font_metrics.horizontalAdvance(self.text())
         text_height = font_metrics.height()
         icon_width = self.iconSize().width() if not self.icon().isNull() else 0
         icon_height = self.iconSize().height() if not self.icon().isNull() else 0
@@ -352,7 +351,7 @@ class SiPushButtonRefactor(ABCButton):
         self._initStyle()
         self._scale_factor = 1
 
-        self.scale_factor_ani = SiExpAnimationRefactor(self, self.Property.ScaleFactor)
+        self.scale_factor_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.ScaleFactor)
         self.scale_factor_ani.init(1 / 16, 0, 1, 1)
 
     @classmethod
@@ -422,7 +421,7 @@ class SiPushButtonRefactor(ABCButton):
 
     def textRectAndIconRect(self) -> (QRectF, QRect):
         font_metrics = QFontMetrics(self.font())
-        text_width = font_metrics.width(self.text())
+        text_width = font_metrics.horizontalAdvance(self.text())
         icon_width = self.iconSize().width() if not self.icon().isNull() else 0
         icon_height = self.iconSize().height() if not self.icon().isNull() else 0
         gap = self.style_data.icon_text_gap if text_width > 0 and icon_width > 0 else 0
@@ -508,10 +507,10 @@ class SiProgressPushButton(SiPushButtonRefactor):
         self._progress_rect_color = self.style_data.progress_color
         self._progress = 0
 
-        self.progress_ani = SiExpAnimationRefactor(self, self.Property.Progress)
+        self.progress_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.Progress)
         self.progress_ani.init(1 / 6, 0.005, 0, 0)
 
-        self.progress_color_ani = SiExpAnimationRefactor(self, self.Property.ProgressRectColor)
+        self.progress_color_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.ProgressRectColor)
         self.progress_color_ani.init(1 / 8, 0.01, self._progress_rect_color, self._progress_rect_color)
 
     def setProgress(self, p: float, ani: bool = True) -> None:
@@ -543,14 +542,14 @@ class SiProgressPushButton(SiPushButtonRefactor):
     def _drawButtonRect(self, painter: QPainter, rect: QRect) -> None:
         p = min(self._progress, 1)  # prevent progress exceeding caused by using animation.
         gradient = QLinearGradient(rect.left(), rect.top(), rect.right(), rect.top())
-        gradient.setColorAt(p - 0.0001, self._progress_rect_color)  # use property variable
+        gradient.setColorAt(max(0.0, min(p - 0.0001, 1.0)), self._progress_rect_color)  # use property variable
         gradient.setColorAt(p, self.style_data.button_color)
         painter.setBrush(gradient)
         painter.drawPath(self._drawButtonPath(rect))
 
 
 class SiLongPressButtonRefactor(SiPushButtonRefactor):
-    longPressed = pyqtSignal()
+    longPressed = Signal()
 
     def __init__(self, parent: T_WidgetParent = None) -> None:
         super().__init__(parent)
@@ -558,7 +557,7 @@ class SiLongPressButtonRefactor(SiPushButtonRefactor):
         self.style_data = LongPressButtonStyleData()
         self._progress = 0
 
-        self.progress_ani = SiExpAnimationRefactor(self, self.Property.Progress)
+        self.progress_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.Progress)
         self.progress_ani.init(-1 / 16, 0.12, 0, 0)
 
         self.go_backwards_timer = QTimer(self)
@@ -615,7 +614,7 @@ class SiLongPressButtonRefactor(SiPushButtonRefactor):
     def _drawButtonRect(self, painter: QPainter, rect: QRect) -> None:
         p = min(self._progress, 1)  # prevent progress exceeding caused by using animation.
         gradient = QLinearGradient(rect.left(), rect.top(), rect.right(), rect.top())
-        gradient.setColorAt(p - 0.0001, self.style_data.progress_color)
+        gradient.setColorAt(max(0.0, min(p - 0.0001, 1.0)), self.style_data.progress_color)
         gradient.setColorAt(p, self.style_data.button_color)
         painter.setBrush(gradient)
         painter.drawPath(self._drawButtonPath(rect))
@@ -640,7 +639,7 @@ class SiFlatButton(ABCButton):
         self._initStyle()
         self._scale_factor = 1
 
-        self.scale_factor_ani = SiExpAnimationRefactor(self, self.Property.ScaleFactor)
+        self.scale_factor_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.ScaleFactor)
         self.scale_factor_ani.init(1 / 16, 0, 1, 1)
 
     def _initStyle(self):
@@ -674,7 +673,7 @@ class SiFlatButton(ABCButton):
 
     def textRectAndIconRect(self) -> (QRectF, QRect):
         font_metrics = QFontMetrics(self.font())
-        text_width = font_metrics.width(self.text())
+        text_width = font_metrics.horizontalAdvance(self.text())
         icon_width = self.iconSize().width() if not self.icon().isNull() else 0
         icon_height = self.iconSize().height() if not self.icon().isNull() else 0
         gap = self.style_data.icon_text_gap if text_width > 0 and icon_width > 0 else 0
@@ -762,10 +761,10 @@ class SiToggleButtonRefactor(SiFlatButton):
         self._button_rect_color = self.style_data.button_color
         self._text_color = self.style_data.text_color
 
-        self.toggle_btn_color_ani = SiExpAnimationRefactor(self, self.Property.ButtonRectColor)
+        self.toggle_btn_color_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.ButtonRectColor)
         self.toggle_btn_color_ani.init(1 / 8, 0.01, self._button_rect_color, self._button_rect_color)
 
-        self.toggle_text_color_ani = SiExpAnimationRefactor(self, self.Property.TextColor)
+        self.toggle_text_color_ani = SiExpAnimationRefactor(self, self.ABCButtonProperty.TextColor)
         self.toggle_text_color_ani.init(1 / 8, 0.01, self._text_color, self._text_color)
 
         self.toggled.connect(self._onButtonToggled)
@@ -800,15 +799,15 @@ class SiToggleButtonRefactor(SiFlatButton):
 class SwitchStyleData(QObject):
     STYLE_TYPES = ["Switch"]
 
-    background_color_starting: QColor = QColor("#a681bf")
-    background_color_ending: QColor = QColor("#a681bf")
-    frame_color: QColor = QColor("#D2D2D2")
-    thumb_color_checked: QColor = QColor("#0f0912")
-    thumb_color_unchecked: QColor = QColor("#D2D2D2")
+    background_color_starting: QColor = field(default_factory=lambda: QColor("#a681bf"))
+    background_color_ending: QColor = field(default_factory=lambda: QColor("#a681bf"))
+    frame_color: QColor = field(default_factory=lambda: QColor("#D2D2D2"))
+    thumb_color_checked: QColor = field(default_factory=lambda: QColor("#0f0912"))
+    thumb_color_unchecked: QColor = field(default_factory=lambda: QColor("#D2D2D2"))
 
 
 class SiSwitchRefactor(QPushButton):
-    class Property:
+    class SiSwitchRefactorProperty:
         Progress = "progress"
         ScaleFactor = "scaleFactor"
 
@@ -822,10 +821,10 @@ class SiSwitchRefactor(QPushButton):
 
         self._initStyle()
 
-        self.scale_factor_ani = SiExpAnimationRefactor(self, self.Property.ScaleFactor)
+        self.scale_factor_ani = SiExpAnimationRefactor(self, self.SiSwitchRefactorProperty.ScaleFactor)
         self.scale_factor_ani.init(1 / 16, 0, 1, 1)
 
-        self.progress_ani = SiExpAnimationRefactor(self, self.Property.Progress)
+        self.progress_ani = SiExpAnimationRefactor(self, self.SiSwitchRefactorProperty.Progress)
         self.progress_ani.init(1 / 4, 0.01, 0, 0)
 
         self.clicked.connect(self._onClicked)
@@ -833,7 +832,7 @@ class SiSwitchRefactor(QPushButton):
     def _initStyle(self) -> None:
         self.setFixedSize(40, 20)
 
-    @pyqtProperty(float)
+    @Property(float)
     def scaleFactor(self):
         return self._scale_factor
 
@@ -842,7 +841,7 @@ class SiSwitchRefactor(QPushButton):
         self._scale_factor = value
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def progress(self) -> float:
         return self._progress
 
@@ -965,19 +964,19 @@ class RadioButtonStyleData(QObject):
     avatar_height: int = 36
     avatar_border_radius: int = 18
 
-    highlight_idle_color: QColor = QColor("#00baadc7")
-    highlight_flash_color: QColor = QColor("#90baadc7")
-    highlight_hover_color: QColor = QColor("#40baadc7")
+    highlight_idle_color: QColor = field(default_factory=lambda: QColor("#00baadc7"))
+    highlight_flash_color: QColor = field(default_factory=lambda: QColor("#90baadc7"))
+    highlight_hover_color: QColor = field(default_factory=lambda: QColor("#40baadc7"))
 
-    unchecked_indicator_color: QColor = QColor("#25222A")
+    unchecked_indicator_color: QColor = field(default_factory=lambda: QColor("#25222A"))
     unchecked_indicator_width: float = 33
 
-    checked_indicator_color: QColor = QColor("#a681bf")
+    checked_indicator_color: QColor = field(default_factory=lambda: QColor("#a681bf"))
     checked_indicator_width: float = 51
 
 
 class SiRadioButtonRefactor(QRadioButton):
-    class Property:
+    class SiRadioButtonRefactorProperty:
         IndicatorWidthProg = "indicatorWidthProg"
         IndicatorHoverWidth = "indicatorHoverWidth"
         IndicatorColor = "indicatorColor"
@@ -993,17 +992,17 @@ class SiRadioButtonRefactor(QRadioButton):
         self._indi_color = self.style_data.unchecked_indicator_color
         self._hl_color = self.style_data.highlight_idle_color
 
-        self.indi_width_ani = SiExpAnimationRefactor(self, self.Property.IndicatorWidthProg)
-        self.indi_width_ani.init(1/6, 0.015, 0, 0)
+        self.indi_width_ani = SiExpAnimationRefactor(self, self.SiRadioButtonRefactorProperty.IndicatorWidthProg)
+        self.indi_width_ani.init(1 / 6, 0.015, 0, 0)
 
-        self.indi_hover_width_ani = SiExpAnimationRefactor(self, self.Property.IndicatorHoverWidth)
-        self.indi_hover_width_ani.init(1/4, 0.01, 0, 0)
+        self.indi_hover_width_ani = SiExpAnimationRefactor(self, self.SiRadioButtonRefactorProperty.IndicatorHoverWidth)
+        self.indi_hover_width_ani.init(1 / 4, 0.01, 0, 0)
 
-        self.indi_color_ani = SiExpAnimationRefactor(self, self.Property.IndicatorColor)
-        self.indi_color_ani.init(1/3, 1, self._indi_color, self._indi_color)
+        self.indi_color_ani = SiExpAnimationRefactor(self, self.SiRadioButtonRefactorProperty.IndicatorColor)
+        self.indi_color_ani.init(1 / 3, 1, self._indi_color, self._indi_color)
 
-        self.highlight_color_ani = SiExpAnimationRefactor(self, self.Property.HighlightRectColor)
-        self.highlight_color_ani.init(1/8, 0.1, self._hl_color, self._hl_color)
+        self.highlight_color_ani = SiExpAnimationRefactor(self, self.SiRadioButtonRefactorProperty.HighlightRectColor)
+        self.highlight_color_ani.init(1 / 8, 0.1, self._hl_color, self._hl_color)
 
         self.toggled.connect(self._onButtonToggled)
 
@@ -1012,7 +1011,7 @@ class SiRadioButtonRefactor(QRadioButton):
     def _initStyle(self) -> None:
         self.setFont(SiFont.getFont(size=13))
 
-    @pyqtProperty(float)
+    @Property(float)
     def indicatorWidthProg(self):
         return self._indi_width_prog
 
@@ -1021,7 +1020,7 @@ class SiRadioButtonRefactor(QRadioButton):
         self._indi_width_prog = value
         self.update()
 
-    @pyqtProperty(float)
+    @Property(float)
     def indicatorHoverWidth(self):
         return self._indi_hover_width
 
@@ -1030,7 +1029,7 @@ class SiRadioButtonRefactor(QRadioButton):
         self._indi_hover_width = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def indicatorColor(self):
         return self._indi_color
 
@@ -1039,7 +1038,7 @@ class SiRadioButtonRefactor(QRadioButton):
         self._indi_color = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @Property(QColor)
     def highlightRectColor(self):
         return self._hl_color
 
@@ -1051,13 +1050,14 @@ class SiRadioButtonRefactor(QRadioButton):
     def _indicatorWidthInterpolation(self, p: float) -> float:
         start = self.style_data.unchecked_indicator_width
         end = self.style_data.checked_indicator_width
-        return start + (end - start) * 3 * p / (2 * p ** 2 + 1)
+        return start + (end - start) * 3 * p / (2 * p**2 + 1)
 
     def _drawIndicatorPath(self, rect: QRect) -> QPainterPath:
         alloc_width = self.style_data.indicator_allocated_width
         radius = self.style_data.indicator_border_radius
-        width = (self._indicatorWidthInterpolation(self._indi_width_prog) +
-                 self._indi_hover_width * ((self._indi_width_prog + 1) / 2))
+        width = self._indicatorWidthInterpolation(self._indi_width_prog) + self._indi_hover_width * (
+            (self._indi_width_prog + 1) / 2
+        )
         path = QPainterPath()
         path.addRoundedRect(QRectF(alloc_width - width, rect.y(), width, rect.height()), radius, radius)
         return path
@@ -1093,7 +1093,7 @@ class SiRadioButtonRefactor(QRadioButton):
             self.indi_width_ani.setEndValue(1)
             self.indi_color_ani.setEndValue(self.style_data.checked_indicator_color)
             self.indi_color_ani.setCurrentValue(self.style_data.checked_indicator_color)
-            self.setProperty(self.Property.IndicatorColor, self.style_data.checked_indicator_color)
+            self.setProperty(self.SiRadioButtonRefactorProperty.IndicatorColor, self.style_data.checked_indicator_color)
         else:
             self.indi_width_ani.setEndValue(0)
             self.indi_width_ani.setCurrentValue(0.5)
@@ -1160,7 +1160,9 @@ class SiRadioButtonWithDescription(SiRadioButtonRefactor):
         self.desc_label.setFixedWidth(width)
 
     def sizeHint(self) -> QSize:
-        width = max(self.desc_label.width(), super().sizeHint().width()) + self.style_data.indicator_allocated_width +22
+        width = (
+            max(self.desc_label.width(), super().sizeHint().width()) + self.style_data.indicator_allocated_width + 22
+        )
         height = self.desc_label.sizeHint().height() + 24
         return QSize(width, height)
 
@@ -1218,9 +1220,7 @@ class SiRadioButtonWithAvatar(SiRadioButtonRefactor):
         size = QSize(width, height) * device_pixel_ratio
 
         path = QPainterPath()
-        path.addRoundedRect(x,                  y,
-                            width,              height,
-                            border_radius,      border_radius)
+        path.addRoundedRect(x, y, width, height, border_radius, border_radius)
 
         buffer_painter.setClipPath(path)
         buffer_painter.drawPixmap(target_rect, self.icon().pixmap(size))
@@ -1232,8 +1232,12 @@ class SiRadioButtonWithAvatar(SiRadioButtonRefactor):
         rect = self.rect()
         indi_rect = QRect(0, 8, self.style_data.indicator_allocated_width, self.style_data.indicator_height)
         avatar_rect = QRect(indi_rect.width() + 22, 0, self.style_data.avatar_width, self.style_data.avatar_height)
-        text_rect = QRect(indi_rect.width() + 22 + self.style_data.avatar_width + 12, 3, rect.width() - indi_rect.width() - 22, 14)
-        desc_rect = QRect(indi_rect.width() + 22 + self.style_data.avatar_width + 12, 19, rect.width() - indi_rect.width() - 22, 18)
+        text_rect = QRect(
+            indi_rect.width() + 22 + self.style_data.avatar_width + 12, 3, rect.width() - indi_rect.width() - 22, 14
+        )
+        desc_rect = QRect(
+            indi_rect.width() + 22 + self.style_data.avatar_width + 12, 19, rect.width() - indi_rect.width() - 22, 18
+        )
 
         renderHints = (
             QPainter.RenderHint.SmoothPixmapTransform

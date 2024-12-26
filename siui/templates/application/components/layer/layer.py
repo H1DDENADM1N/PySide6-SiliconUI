@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 
 from siui.components.widgets.abstracts.widget import SiWidget
 from siui.components.widgets.label import SiLabel
@@ -6,7 +6,7 @@ from siui.core import SiColor
 
 
 class SiLabelHasClickedSignal(SiLabel):
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -16,8 +16,8 @@ class SiLabelHasClickedSignal(SiLabel):
 
 
 class SiLayer(SiWidget):
-    closed = pyqtSignal()
-    showed = pyqtSignal()
+    closed = Signal()
+    showed = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

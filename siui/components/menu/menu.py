@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt, pyqtSignal, QSize
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QGraphicsDropShadowEffect
 
 from siui.components import SiWidget, SiLabel, SiDenseVContainer
 from siui.components.menu.abstracts import ABCSiMenu, AnimationManager
@@ -28,10 +28,10 @@ class SiMenu(ABCSiMenu):
 
 
 class SiInteractionMenu(SiWidget):
-    indexChanged = pyqtSignal(int)
-    valueChanged = pyqtSignal(object)
-    unfoldSignal = pyqtSignal()
-    closeSignal = pyqtSignal()
+    indexChanged = Signal(int)
+    valueChanged = Signal(object)
+    unfoldSignal = Signal()
+    closeSignal = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

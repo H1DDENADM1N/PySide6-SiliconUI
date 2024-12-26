@@ -1,1 +1,1 @@
-from .parser import IconDictionary
+from .parser import *

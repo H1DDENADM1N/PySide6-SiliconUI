@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from siui.components.widgets.container import SiDenseVContainer
 from siui.components.widgets.label import SiLabel
