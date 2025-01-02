@@ -9,7 +9,6 @@ from PySide6.QtWidgets import QLabel
 from siui.components import (
     SiCircularProgressBar,
     SiDenseVContainer,
-    SiLineEdit,
     SiLineEditWithDeletionButton,
     SiLineEditWithItemName,
     SiOptionCardLinear,
@@ -28,6 +27,7 @@ from siui.components.button import (
     SiToggleButtonRefactor,
 )
 from siui.components.combobox import SiComboBox
+from siui.components.editbox import SiLineEdit
 from siui.components.label import HyperRoundBorderTest
 from siui.components.menu import SiMenu
 from siui.components.page import SiPage
@@ -338,9 +338,19 @@ class ExampleWidgets(SiPage):
 
             self.original_rect = QLabel(self)
             self.original_rect.resize(64, 64)
-            self.original_rect.setStyleSheet("background-color: #a681bf; border-radius: 14px")
+            self.original_rect.setStyleSheet(
+                "background-color: transparent; border-radius: 14px; border: 1px solid #a681bf"
+            )
             # self.trend_chart.adjustViewRect()
             # print(self.trend_chart.viewRect())
+
+            self.linear_edit_box = SiLineEdit(self)
+            self.linear_edit_box.resize(560, 36)
+            self.linear_edit_box.setTitle("项目名称")
+
+            self.linear_edit_box2 = SiLineEdit(self)
+            self.linear_edit_box2.resize(560, 36)
+            self.linear_edit_box2.setTitle("项目所属人")
 
             # self.refactor_buttons.body().setAdjustWidgetsSize(True)
             self.refactor_buttons.body().addWidget(self.refactor_pushbutton)
@@ -354,6 +364,8 @@ class ExampleWidgets(SiPage):
             self.refactor_buttons.body().addWidget(self.coordinate_picker_2d)
             self.refactor_buttons.body().addWidget(self.test_rect)
             self.refactor_buttons.body().addWidget(self.original_rect)
+            self.refactor_buttons.body().addWidget(self.linear_edit_box)
+            self.refactor_buttons.body().addWidget(self.linear_edit_box2)
             # self.refactor_buttons.body().addWidget(self.trend_chart)
 
             self.refactor_buttons.body().addPlaceholder(12)
@@ -624,21 +636,6 @@ class ExampleWidgets(SiPage):
         with self.titled_widgets_group as group:
             group.addTitle("输入组件")
 
-            # 简单单行输入组件
-            self.line_edit = OptionCardPlaneForWidgetDemos(self)
-            self.line_edit.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
-            )
-            self.line_edit.setTitle("简单单行输入组件")
-
-            self.demo_line_edit = SiLineEdit(self)
-            self.demo_line_edit.resize(256, 32)
-            self.demo_line_edit.lineEdit().setText("你好世界")
-
-            self.line_edit.body().addWidget(self.demo_line_edit)
-            self.line_edit.body().addPlaceholder(12)
-            self.line_edit.adjustSize()
-
             # 带删除单行输入组件
             self.line_edit_with_del_button = OptionCardPlaneForWidgetDemos(self)
             self.line_edit_with_del_button.setSourceCodeURL(
@@ -710,7 +707,6 @@ class ExampleWidgets(SiPage):
             self.named_line_edit.body().addPlaceholder(12)
             self.named_line_edit.adjustSize()
 
-            group.addWidget(self.line_edit)
             group.addWidget(self.line_edit_with_del_button)
             group.addWidget(self.int_spin_box)
             group.addWidget(self.double_spin_box)
