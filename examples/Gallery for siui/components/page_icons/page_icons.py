@@ -1,6 +1,7 @@
-import pyperclip
-from PySide6.QtCore import Qt
 
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QClipboard
 from siui.components import (
     SiDenseHContainer,
     SiDenseVContainer,
@@ -20,7 +21,8 @@ from siui.core import Si
 
 def get_on_button_clicked_func(button):
     def on_button_clicked():
-        pyperclip.copy(button.objectName())
+        clipboard = QApplication.clipboard()
+        clipboard.setText(button.objectName())
         SiGlobal.siui.windows["TOOL_TIP"].setText(
             f"{button.objectName()}<br>"
             f'<span style="color: {button.getColor(SiColor.TEXT_D)}">复制成功</span>',

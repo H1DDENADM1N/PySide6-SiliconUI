@@ -2,7 +2,6 @@
 import datetime
 import time
 
-from dateutil.relativedelta import relativedelta
 from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QFont
 
@@ -153,8 +152,33 @@ class CalenderWidget(SiDenseVContainer):
         self.updateYearMonthLabel()
 
     def modifyDisplayedDate(self, month_delta):
-        self.displayed_date = self.displayed_date.replace(day=1)  # 归一化，防止因日期引起的切换错误，日期不重要，月份重要
-        self.displayed_date = self.displayed_date + relativedelta(months=month_delta)
+        # 归一化，防止因日期引起的切换错误，日期不重要，月份重要
+        self.displayed_date = self.displayed_date.replace(day=1)
+        
+        # 计算新的年份和月份
+        year = self.displayed_date.year
+        month = self.displayed_date.month + month_delta
+        
+        # 处理跨年的情况
+        if month > 12:
+            year += (month - 1) // 12
+            month = month % 12 or 12
+        elif month < 1:
+            year += (month - 1) // 12
+            month = month % 12 or 12
+        
+        # 处理目标月份的天数差异
+        try:
+            self.displayed_date = self.displayed_date.replace(year=year, month=month)
+        except ValueError:
+            # 如果目标月份没有当前日期的天数，则调整到目标月份的最后一天
+            if month == 12:
+                next_month = datetime(year + 1, 1, 1)
+            else:
+                next_month = datetime(year, month + 1, 1)
+            last_day_of_month = next_month - datetime.timedelta(days=1)
+            self.displayed_date = last_day_of_month
+        
         self.updateCalendar()
         self.updateYearMonthLabel()
 
