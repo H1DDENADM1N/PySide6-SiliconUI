@@ -55,7 +55,6 @@ from siui.components.widgets.table import SiTableView
 from siui.components.widgets.timedate import SiCalenderView, SiTimePicker, SiTimeSpanPicker
 from siui.components.widgets.timeline import SiTimeLine, SiTimeLineItem
 from siui.core import Si, SiColor, SiGlobal
-from siui.dialog import raiseNewDialog
 
 from ..option_card import OptionCardPlaneForWidgetDemos
 from .components.demo_tables import DemoOsuPlayerRankingTableManager
