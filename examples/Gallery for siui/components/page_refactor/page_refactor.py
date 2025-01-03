@@ -393,7 +393,7 @@ class RefactoredWidgets(SiPage):
             self.linear_edit_box = SiLineEdit(self)
             self.linear_edit_box.resize(560, 36)
             self.linear_edit_box.setTitle("Repository Name")
-            self.linear_edit_box.setText("PyQt-SiliconUI")
+            self.linear_edit_box.setText("PySide6-SiliconUI")
 
             self.linear_edit_box2 = SiLineEdit(self)
             self.linear_edit_box2.resize(560, 36)
@@ -403,7 +403,7 @@ class RefactoredWidgets(SiPage):
             self.linear_edit_box3 = SiLineEdit(self)
             self.linear_edit_box3.resize(560, 36)
             self.linear_edit_box3.setTitle("Description")
-            self.linear_edit_box3.setText("A powerful and artistic UI library based on PyQt5")
+            self.linear_edit_box3.setText("A powerful and artistic UI library based on PySide6")
 
             self.check_button = SiPushButtonRefactor(self)
             self.check_button.setText("确定")
