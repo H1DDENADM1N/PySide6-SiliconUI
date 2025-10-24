@@ -1,64 +1,34 @@
 from __future__ import annotations
 
 import math
+from contextlib import contextmanager
 from functools import lru_cache
-from typing import TYPE_CHECKING, Optional
 
-from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QPainter, QPainterPath
-
-if TYPE_CHECKING:
-    from PyQt5.QtGui import QFont, QPaintDevice
-
-    from siui.typing import T_Brush, T_PenStyle, T_RenderHint
+from PyQt5.QtCore import QPoint, QPointF, QRectF, Qt
+from PyQt5.QtGui import QColor, QLinearGradient, QPaintDevice, QPainter, QPainterPath
 
 
-def createPainter(
-    paintDevice: QPaintDevice,
-    renderHint: T_RenderHint = QPainter.RenderHint.Antialiasing,
-    penStyle: T_PenStyle = Qt.PenStyle.NoPen,
-    brush: T_Brush = None,
-    font: QFont | None = None,
-) -> QPainter:
-    """构造并初始化 QPainter 对象
-    应该使用 with 关键字来创建和关闭 QPainter 对象
-
-    参数:
-        - parent: QPaintDevice 的子类实例，通常是 QWidget 或 QImage
-        - renderHint: 指定渲染提示，默认为 QPainter.RenderHint.Antialiasing 标准抗锯齿
-        - penStyle: Qt.PenStyle 类型，指定画笔样式，默认为 Qt.PenStyle.NoPen
-        - brushColor: 字符串或 QColor 对象，指定画刷颜色，默认不指定
-        - font: QFont 对象，指定字体，默认不指定
-
-    返回:
-        QPainter 对象实例
-    """
-    painter = QPainter(paintDevice)
-    if renderHint is not None:
-        painter.setRenderHints(renderHint)
-
-    if penStyle is not None:
-        painter.setPen(penStyle)
-
-    if brush is not None:
-        painter.setBrush(brush)
-
-    if font is not None:
-        painter.setFont(font)
-
-    return painter
-
-
-def _superSin(x: float, power: float = 5.0) -> float:
-    return math.copysign(abs(math.sin(x)) ** (2 / power), math.sin(x))
-
-
-def _superCos(x: float, power: float = 5.0) -> float:
-    return math.copysign(abs(math.cos(x)) ** (2 / power), math.cos(x))
+@contextmanager
+def createPainter(device: QPaintDevice,
+                  render_hints: QPainter.RenderHints = QPainter.Antialiasing) -> QPainter:
+    painter = QPainter(device)
+    painter.setRenderHints(render_hints)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(Qt.NoBrush)
+    try:
+        yield painter
+    finally:
+        painter.end()
 
 
 @lru_cache(maxsize=None)
 def _getSuperRoundedPoints(radius_x: float, radius_y: float, power: float, quality: int):
+    def _superSin(x: float, power: float = 5.0) -> float:
+        return math.copysign(abs(math.sin(x)) ** (2 / power), math.sin(x))
+
+    def _superCos(x: float, power: float = 5.0) -> float:
+        return math.copysign(abs(math.cos(x)) ** (2 / power), math.cos(x))
+
     points = []
     for i in range(quality + 1):
         points.append(QPointF((_superSin(2 * math.pi * i / quality, power) + 0) * radius_x,
@@ -137,6 +107,127 @@ def getSuperRoundedRectPath(rect: QRectF,
     return _cachedGetSuperRoundedRectPath(rect_tuple, radius_x, radius_y, power, quality)
 
 
+def getRoundedRectPathQuad(rect: QRectF,
+                       radius_tl: float, radius_tr: float,
+                       radius_br: float, radius_bl: float) -> QPainterPath:
+    """
+    使用 quadTo 绘制不对称圆角矩形
+    :param rect: QRectF 矩形区域
+    :param radius_tl: 左上角半径
+    :param radius_tr: 右上角半径
+    :param radius_br: 右下角半径
+    :param radius_bl: 左下角半径
+    """
+    path = QPainterPath()
+
+    # 左上角开始
+    path.moveTo(rect.left() + radius_tl, rect.top())
+    path.lineTo(rect.right() - radius_tr, rect.top())
+    if radius_tr > 0:
+        path.quadTo(rect.right(), rect.top(), rect.right(), rect.top() + radius_tr)
+    else:
+        path.lineTo(rect.right(), rect.top())
+
+    path.lineTo(rect.right(), rect.bottom() - radius_br)
+    if radius_br > 0:
+        path.quadTo(rect.right(), rect.bottom(), rect.right() - radius_br, rect.bottom())
+    else:
+        path.lineTo(rect.right(), rect.bottom())
+
+    path.lineTo(rect.left() + radius_bl, rect.bottom())
+    if radius_bl > 0:
+        path.quadTo(rect.left(), rect.bottom(), rect.left(), rect.bottom() - radius_bl)
+    else:
+        path.lineTo(rect.left(), rect.bottom())
+
+    path.lineTo(rect.left(), rect.top() + radius_tl)
+    if radius_tl > 0:
+        path.quadTo(rect.left(), rect.top(), rect.left() + radius_tl, rect.top())
+    else:
+        path.lineTo(rect.left(), rect.top())
+
+    path.closeSubpath()
+    return path
+
+
+def getRoundedRectPathArc(rect: QRectF,
+                          radius_tl: float, radius_tr: float,
+                          radius_br: float, radius_bl: float) -> QPainterPath:
+    """
+    使用 arcTo 绘制不对称圆角矩形
+    :param rect: QRectF 矩形区域
+    :param radius_tl: 左上角半径
+    :param radius_tr: 右上角半径
+    :param radius_br: 右下角半径
+    :param radius_bl: 左下角半径
+    """
+    path = QPainterPath()
+
+    path.moveTo(rect.left() + radius_tl, rect.top())
+
+    path.lineTo(rect.right() - radius_tr, rect.top())
+    path.arcTo(QRectF(rect.right() - 2*radius_tr, rect.top(), 2*radius_tr, 2*radius_tr), 90, -90)
+
+    path.lineTo(rect.right(), rect.bottom() - radius_br)
+    path.arcTo(QRectF(rect.right() - 2*radius_br, rect.bottom() - 2*radius_br, 2*radius_br, 2*radius_br), 0, -90)
+
+    path.lineTo(rect.left() + radius_bl, rect.bottom())
+    path.arcTo(QRectF(rect.left(), rect.bottom() - 2*radius_bl, 2*radius_bl, 2*radius_bl), 270, -90)
+
+    path.lineTo(rect.left(), rect.top() + radius_tl)
+    path.arcTo(QRectF(rect.left(), rect.top(), 2*radius_tl, 2*radius_tl), 180, -90)
+
+    path.closeSubpath()
+    return path
+
+@lru_cache(maxsize=None)
+def _cachedGaussianLinearGradient(start_x, start_y, final_stop_x, final_stop_y, color_code, quality):
+
+    def getInterpolationPoints(quality: int):
+        def f(x):
+            return math.exp(-5 * x ** 2)
+
+        def g(x):
+            return (math.sin((x - 1/2) * math.pi) + 1) / 2
+
+        result = []
+
+        for i in range(quality+1):
+            p_x = g(i / quality)
+            p_y = f(p_x)
+            result.append((p_x, p_y))
+
+        return result
+
+    start = QPointF(start_x, start_y)
+    final_stop = QPointF(final_stop_x, final_stop_y)
+
+    r, g, b, a = QColor(color_code).getRgb()
+
+    gradient = QLinearGradient(start, final_stop)
+    points = getInterpolationPoints(quality)
+
+    for pos, transparency in points:
+        p_color = QColor(r, g, b, int(transparency * a))
+        gradient.setColorAt(pos, p_color)
+
+    return gradient
+
+
+def getGaussianLinearGradient(start: QPointF | QPoint,
+                              final_stop: QRectF | QPoint,
+                              color: QColor,
+                              quality: int = 8) -> QLinearGradient:
+
+    start_x = start.x()
+    start_y = start.y()
+    final_stop_x = final_stop.x()
+    final_stop_y = final_stop.y()
+    color_code = color.name(QColor.NameFormat.HexArgb)
+
+    return _cachedGaussianLinearGradient(start_x, start_y, final_stop_x, final_stop_y, color_code, quality)
+
+
 __all__ = [
-    "createPainter", "getSuperRoundedRectPath"
+    "createPainter", "getSuperRoundedRectPath", "getGaussianLinearGradient"
 ]

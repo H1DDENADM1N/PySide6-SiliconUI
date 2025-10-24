@@ -23,7 +23,7 @@ class SiliconUIGlobal:
     # 值为 SVG信息的 bytes
     icons = {}
     iconpack = GlobalIconPack()
-    iconpack.setDefaultColor(colors.fromToken(SiColor.SVG_NORMAL))
+    iconpack.setDefaultColor("#D1CBD4")
 
     # 样式表字典，储存所有动态样式表
     # 值为字符串
@@ -91,12 +91,19 @@ class NewGlobal:
     create_time = time.time()
 
 
-def _getToolTipWindow() -> QWidget:
+def toolTipWindow() -> QWidget:
     return SiGlobal.siui.windows.get("TOOL_TIP")
 
 
+def raiseToolTipWindow():
+    window = toolTipWindow()
+    if window is not None:
+        window.raise_()
+
+
 def showToolTip(widget, flash: bool = True) -> None:
-    window = _getToolTipWindow()
+    """ Show tool tip of specified widget """
+    window = toolTipWindow()
     if window is None:
         return
     if widget.toolTip() == "":
@@ -107,17 +114,15 @@ def showToolTip(widget, flash: bool = True) -> None:
 
 
 def hideToolTip(widget) -> None:
-    window = _getToolTipWindow()
+    window = toolTipWindow()
     if window is None:
-        return
-    if widget.toolTip() == "":
         return
     window.setNowInsideOf(None)
     window.hide_()
 
 
 def updateToolTip(widget, flash: bool = True) -> None:
-    window = _getToolTipWindow()
+    window = toolTipWindow()
     if window is None:
         return
     if widget.toolTip() == "":
@@ -126,4 +131,9 @@ def updateToolTip(widget, flash: bool = True) -> None:
 
 
 def isTooltipShown() -> bool:
-    return _getToolTipWindow().is_shown
+    return toolTipWindow().is_shown
+
+
+def isToolTipInsideOf(widget: QWidget) -> bool:
+    return widget == toolTipWindow().nowInsideOf()
+

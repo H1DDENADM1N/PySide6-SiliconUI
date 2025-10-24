@@ -2,7 +2,7 @@ import datetime
 import random
 
 import numpy
-from PyQt5.QtCore import Qt, QPointF, QRectF
+from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QGraphicsBlurEffect, QLabel
 
@@ -28,7 +28,7 @@ from siui.components.button import (
 )
 from siui.components.chart import SiTrendChart
 from siui.components.combobox import SiComboBox
-from siui.components.editbox import SiLineEdit
+from siui.components.editbox import SiCapsuleLineEdit
 from siui.components.label import HyperRoundBorderTest
 from siui.components.menu import SiMenu
 from siui.components.page import SiPage
@@ -56,7 +56,6 @@ from siui.components.widgets.table import SiTableView
 from siui.components.widgets.timedate import SiCalenderView, SiTimePicker, SiTimeSpanPicker
 from siui.components.widgets.timeline import SiTimeLine, SiTimeLineItem
 from siui.core import Si, SiColor, SiGlobal
-from siui.dialog import raiseNewDialog
 
 from ..option_card import OptionCardPlaneForWidgetDemos
 from .components.demo_tables import DemoOsuPlayerRankingTableManager
@@ -327,15 +326,15 @@ class ExampleWidgets(SiPage):
 
             self.original_rect = QLabel(self)
             self.original_rect.resize(64, 64)
-            self.original_rect.setStyleSheet("background-color: transparent; border-radius: 14px; border: 1px solid #a681bf")
+            self.original_rect.setStyleSheet("background-color: transparent; border-radius: 14px; border: 1px solid #D087DF")
             # self.trend_chart.adjustViewRect()
             # print(self.trend_chart.viewRect())
 
-            self.linear_edit_box = SiLineEdit(self)
+            self.linear_edit_box = SiCapsuleLineEdit(self)
             self.linear_edit_box.resize(560, 36)
             self.linear_edit_box.setTitle("项目名称")
 
-            self.linear_edit_box2 = SiLineEdit(self)
+            self.linear_edit_box2 = SiCapsuleLineEdit(self)
             self.linear_edit_box2.resize(560, 36)
             self.linear_edit_box2.setTitle("项目所属人")
 
