@@ -950,19 +950,41 @@ class SiRoundedMenu(QMenu):
             self._is_layout_dirty = False
 
         self._container.adjustSize()
+        container_hint = self._container.sizeHint()
+        if container_hint.isValid():
+            self._container.setMinimumSize(container_hint)
 
     def popup(self, pos: QPoint, action: QAction | None = None) -> None:
         self._prepareToPopup()
 
+        self._ensureProperSizing()
         new_pos = pos - self._scroll_area.pos()
         super().popup(new_pos, action)
         self.activateWindow()
+
+    def _ensureProperSizing(self) -> None:
+        """确保所有部件在显示前都有正确的大小"""
+        self._container.layout().activate()
+        container_hint = self._container.sizeHint()
+        if not container_hint.isValid():
+            item_count = len([item for item in self._items if item.type not in [item.Type.Separator]])
+            container_hint = QSize(200, item_count * 36 + 12)
+        self._container.setFixedSize(container_hint)
+        scroll_size = container_hint + QSize(8, 0)
+        self._scroll_area.setFixedSize(scroll_size)
+        self._background.setFixedSize(scroll_size)
+        menu_size = scroll_size + QSize(
+            self._margins.left() + self._margins.right(), self._margins.top() + self._margins.bottom()
+        )
+        self.setFixedSize(menu_size)
 
     def refreshLayout(self) -> None:
         """立即更新布局"""
         self._refreshLayoutOrder()
         self._container.adjustSize()
         self.adjustSize()
+        self.updateGeometry()
+        self._container.updateGeometry()
 
     def paintEvent(self, a0):
         pass
