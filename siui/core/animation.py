@@ -25,20 +25,20 @@ class Curve:
 
 
 class ABCSiAnimation(QObject):
-    ticked = Signal(object)     # 动画进行一刻的信号
-    finished = Signal(object)   # 动画完成的信号，回传目标值
+    ticked = Signal(object)  # 动画进行一刻的信号
+    finished = Signal(object)  # 动画完成的信号，回传目标值
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.enabled = True
-        self.target_ = numpy.array(0)         # 目标值
-        self.current_ = numpy.array(0)        # 当前值
-        self.counter = 0                     # 计数器
+        self.target_ = numpy.array(0)  # 目标值
+        self.current_ = numpy.array(0)  # 当前值
+        self.counter = 0  # 计数器
 
         # 构建计时器
         self.timer = QTimer()
-        self.timer.setInterval(int(1000/global_fps))
+        self.timer.setInterval(int(1000 / global_fps))
         self.timer.timeout.connect(self._process)  # 每经历 interval 时间，传入函数就被触发一次
         # self.timer.setTimerType(Qt.PreciseTimer)
 
@@ -160,12 +160,12 @@ class ABCSiAnimation(QObject):
 
 
 class SiExpAnimation(ABCSiAnimation):
-    """ 级数动画类，每次动画的进行步长都与当前进度有关 """
+    """级数动画类，每次动画的进行步长都与当前进度有关"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.factor = 1/2
+        self.factor = 1 / 2
         self.bias = 1
 
     def init(self, factor: float, bias: float, current: Any, target: Any, fps: int = 60):
@@ -203,7 +203,7 @@ class SiExpAnimation(ABCSiAnimation):
         return arr
 
     def isCompleted(self):
-        """ To check whether we meet the point that the animation should stop """
+        """To check whether we meet the point that the animation should stop"""
         return (self._distance() == 0).all()
 
     def _process(self):
@@ -226,7 +226,7 @@ class SiExpAccelerateAnimation(SiExpAnimation):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.accelerate_function = lambda x: x ** 1.6
+        self.accelerate_function = lambda x: x**1.6
         self.step_length_bound = 0
         self.frame_counter = 0
 
@@ -266,7 +266,7 @@ class SiSqrExpAnimation(ABCSiAnimation):
         super().__init__(parent)
 
         self.mean_rate = 0.5
-        self.base = 1/2
+        self.base = 1 / 2
         self.peak = 10
         self.bias = 1
         raise NotImplementedError()
@@ -374,6 +374,7 @@ class SiAnimationGroup:
     """
     动画组，为多个动画的管理提供支持，允许使用token访问动画对象
     """
+
     def __init__(self):
         self.animations = []
         self.tokens = []
@@ -395,7 +396,7 @@ class TypeConversionFuncs:
     functions = {
         QPoint.__name__: [
             lambda x: numpy.array((x.x(), x.y()), dtype="float64"),
-            lambda x: QPoint(int(x[0]), int(x[1]))
+            lambda x: QPoint(int(x[0]), int(x[1])),
         ],
         QPointF.__name__: [
             lambda x: numpy.array((x.x(), x.y()), dtype="float64"),
@@ -411,16 +412,16 @@ class TypeConversionFuncs:
         ],
         QRect.__name__: [
             lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float64"),
-            lambda x: QRect(int(x[0]), int(x[1]), int(x[2]), int(x[3]))
+            lambda x: QRect(int(x[0]), int(x[1]), int(x[2]), int(x[3])),
         ],
         QRectF.__name__: [
             lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float64"),
-            lambda x: QRectF(float(x[0]), float(x[1]), float(x[2]), float(x[3]))
+            lambda x: QRectF(float(x[0]), float(x[1]), float(x[2]), float(x[3])),
         ],
         QColor.__name__: [
             lambda x: numpy.array(x.getRgb(), dtype="float64"),
-            lambda x: QColor(int(x[0]), int(x[1]), int(x[2]), int(x[3]))
-        ]
+            lambda x: QColor(int(x[0]), int(x[1]), int(x[2]), int(x[3])),
+        ],
     }
 
 
@@ -438,7 +439,7 @@ class SiExpAnimationRefactor(QAbstractAnimation):
         self._out_func = None
         self._end_value = None
         self._current_value = None
-        self.factor = 1/4
+        self.factor = 1 / 4
         self.bias = 0.5
 
         self._velocity_inertia = 0.0  # value between 0 and 1, higher value causes animation harder to accelerate.
@@ -492,11 +493,11 @@ class SiExpAnimationRefactor(QAbstractAnimation):
         self.start_after_timer.singleShot(msec, self.start)
 
     def fromProperty(self):
-        """ load value from target's property """
+        """load value from target's property"""
         self.setCurrentValue(self._target.property(self._property_name))
 
     def toProperty(self):
-        """ set target's property to animation value """
+        """set target's property to animation value"""
         self._target.setProperty(self._property_name, self._out_func(self._current_value))
 
     def setPropertyName(self, name: str) -> None:
@@ -533,9 +534,9 @@ class SiExpAnimationRefactor(QAbstractAnimation):
 
         distance = self._end_value - self._current_value
         flag = numpy.array(abs(distance) <= self.bias, dtype="int8")
-        step = abs(distance) * self.factor + self.bias                   # 基本指数动画运算
+        step = abs(distance) * self.factor + self.bias  # 基本指数动画运算
         step = step * (numpy.array(distance > 0, dtype="int8") * 2 - 1)  # 确定动画方向
-        step = step * (1 - flag) + distance * flag                       # 差距小于偏置的项，返回差距
+        step = step * (1 - flag) + distance * flag  # 差距小于偏置的项，返回差距
 
         self._velocity = self._velocity * self._velocity_inertia + step * (1 - self._velocity_inertia)
 

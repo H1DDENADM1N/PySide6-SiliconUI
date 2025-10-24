@@ -1,12 +1,11 @@
 import random
 from contextlib import contextmanager
 
-
 from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QBoxLayout, QButtonGroup, QLabel, QSizePolicy, QWidget
 
-from siui.components import SiDenseHContainer, SiDenseVContainer, SiTitledWidgetGroup
+from siui.components import SiDenseVContainer, SiTitledWidgetGroup
 from siui.components.button import (
     SiCapsuleButton,
     SiCheckBox,
@@ -14,7 +13,6 @@ from siui.components.button import (
     SiFlatButton,
     SiFlatButtonWithIndicator,
     SiLongPressButtonRefactor,
-    SiOptionButton,
     SiProgressPushButton,
     SiPushButtonRefactor,
     SiRadioButton,
@@ -28,11 +26,12 @@ from siui.components.chart import SiTrendChart
 from siui.components.combobox_ import SiCapsuleComboBox
 from siui.components.container import SiDenseContainer, SiTriSectionPanelCard, SiTriSectionRowCard
 from siui.components.editbox import SiCapsuleLineEdit, SiDoubleSpinBox, SiLabeledLineEdit, SiSpinBox
-from siui.components.label import SiLabelRefactor, SiLinearIndicator, SiLinearPartitionIndicator
+from siui.components.label import SiLinearPartitionIndicator
 from siui.components.page import SiPage
 from siui.components.progress_bar_ import SiProgressBarRefactor
 from siui.components.slider_ import SiCoordinatePicker2D, SiCoordinatePicker3D, SiSlider
 from siui.core import SiGlobal
+from siui.gui import SiFont
 
 from ..option_card import OptionCardPlaneForWidgetDemos
 from .example_menu import exampleSiRoundedMenu

@@ -1,12 +1,11 @@
-from contextlib import contextmanager
-from typing import Callable, List, Iterable
+from typing import Callable, Iterable
 
-from PyQt5.QtCore import QPoint
-from PyQt5.QtWidgets import QAbstractButton, QWidget
+from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QAbstractButton, QWidget
 
 from siui.components.button import SiPushButtonRefactor
 from siui.components.graphic import SiGraphicWrapperWidget
-from siui.components.popover import SiPopover, SiPopoverDatePicker, SiPopoverStackedWidget, SiPopoverCalenderPicker
+from siui.components.popover import SiPopover, SiPopoverCalenderPicker, SiPopoverDatePicker, SiPopoverStackedWidget
 
 
 def _createWrapper(widget: QWidget, animation: Iterable[Callable]) -> SiGraphicWrapperWidget:
@@ -26,7 +25,6 @@ def _createButtonSlot(button: QAbstractButton, popover: SiPopover) -> Callable:
 
 
 def exampleDatePickerPopover(parent: QWidget) -> SiPushButtonRefactor:
-
     # 本示例将使用 SiPopover 创建一个 popover
     # 包含一个类似 QStackedWidget 的页面堆叠控件 SiPopoverStackedWidget
     # 其具有一个页面，用于展示日期选择器 SiPopoverDatePicker
@@ -93,10 +91,7 @@ def exampleCalenderPickerPopover(parent: QWidget) -> SiPushButtonRefactor:
     stack_widget = SiPopoverStackedWidget(popover)
 
     page1 = _createWrapper(
-        widget=SiPopoverCalenderPicker(parent),
-        animation=(
-            SiGraphicWrapperWidget.TransitionAnimations.floatUp,
-        )
+        widget=SiPopoverCalenderPicker(parent), animation=(SiGraphicWrapperWidget.TransitionAnimations.floatUp,)
     )
 
     stack_widget.addPage(page1, "日历选择器")

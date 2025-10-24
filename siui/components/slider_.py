@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import math
 
-from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, QRectF, QSize, Qt, QTimer, pyqtProperty, pyqtSignal
+from PySide6.QtCore import Property as QtProperty
+from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QValidator
 from PySide6.QtWidgets import (
     QAbstractSlider,
@@ -23,22 +24,22 @@ from siui.components.label import SiLinearIndicator
 from siui.core import SiGlobal, createPainter
 from siui.core.animation import SiExpAnimationRefactor
 from siui.gui import SiFont
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 # @dataclass
 class SliderStyleData:
     STYLE_TYPES = ["Slider"]
 
-    thumb_idle_color: QColor = field(default_factory=lambda: QColor("#D087DF"))
-    thumb_hover_color: QColor = field(default_factory=lambda: QColor("#EDE1F4"))
-    thumb_width: int = 52
-    thumb_height: int = 14
+    thumb_idle_color: QColor = QColor("#D087DF")
+    thumb_hover_color: QColor = QColor("#EDE1F4")
+    thumb_width: int = 36
+    thumb_height: int = 24
 
-    track_color: QColor = field(default_factory=lambda: QColor("#D087DF"))
+    track_color: QColor = QColor("#D087DF")  # 77568d
     track_height: int = 5
 
-    background_color: QColor = field(default_factory=lambda: QColor("#1C191F"))
+    background_color: QColor = QColor("#1C191F")
 
 
 class SiSlider(QAbstractSlider):
@@ -70,7 +71,7 @@ class SiSlider(QAbstractSlider):
         self.valueChanged.connect(self._onValueChanged)
         self.rangeChanged.connect(self._onRangeChanged)
 
-    @Property(QColor)
+    @QtProperty(QColor)
     def thumbColor(self):
         return self._thumb_color
 
@@ -79,7 +80,7 @@ class SiSlider(QAbstractSlider):
         self._thumb_color = value
         self.update()
 
-    @Property(float)
+    @QtProperty(float)
     def trackProgress(self):
         return self._track_progress
 
@@ -110,7 +111,7 @@ class SiSlider(QAbstractSlider):
 
     def _onRangeChanged(self, _, __):
         p = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
-        self.setProperty(self.Property.TrackProgress, p)
+        self.setProperty(self.SiSliderProperty.TrackProgress, p)
         self.progress_ani.fromProperty()
         self.progress_ani.setCurrentValue(p)
         self.progress_ani.setEndValue(p)
@@ -286,20 +287,20 @@ class CoordinatePickerStyleData:
     slider_y_width: int = 64
 
     indicator_size: int = 26
-    indicator_idle_color: QColor = field(default_factory=lambda: QColor("#D087DF"))
-    indicator_hover_color: QColor = field(default_factory=lambda: QColor("#EDE1F4"))
+    indicator_idle_color: QColor = QColor("#D087DF")
+    indicator_hover_color: QColor = QColor("#EDE1F4")
     indicator_outline_weight: int = 10
     indicator_stroke_weight: int = 6
-    indicator_background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
-    indicator_stroke_color: QColor = field(default_factory=lambda: QColor("#D087DF"))
+    indicator_background_color: QColor = QColor("#25222a")
+    indicator_stroke_color: QColor = QColor("#D087DF")
 
     base_line_weight: int = 2
-    base_line_color: QColor = field(default_factory=lambda: QColor("#3b3143"))
+    base_line_color: QColor = QColor("#3b3143")
 
-    xoy_plate_background_color: QColor = field(default_factory=lambda: QColor("#571c191f"))
-    deepest_background_color: QColor = field(default_factory=lambda: QColor("#1c191f"))
+    xoy_plate_background_color: QColor = QColor("#571c191f")
+    deepest_background_color: QColor = QColor("#1c191f")
 
-    background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
+    background_color: QColor = QColor("#25222a")
     background_border_radius: int = 6
 
 
@@ -360,7 +361,7 @@ class SiCoordinatePicker2D(QWidget):
         # self.slider_y.style_data.thumb_idle_color = QColor("#eaa9c4")
         # self.slider_y.style_data.track_color = QColor("#b96f98")
 
-    @Property(QColor)
+    @QtProperty(QColor)
     def thumbColor(self):
         return self._thumb_color
 
@@ -369,7 +370,7 @@ class SiCoordinatePicker2D(QWidget):
         self._thumb_color = value
         self.update()
 
-    @Property(float)
+    @QtProperty(float)
     def progressX(self):
         return self._progress_x
 
@@ -378,7 +379,7 @@ class SiCoordinatePicker2D(QWidget):
         self._progress_x = value
         self.update()
 
-    @Property(float)
+    @QtProperty(float)
     def progressY(self):
         return self._progress_y
 
@@ -387,7 +388,7 @@ class SiCoordinatePicker2D(QWidget):
         self._progress_y = value
         self.update()
 
-    @Property(QRectF)
+    @QtProperty(QRectF)
     def indicatorRect(self):
         return self._indicator_rect
 
@@ -624,7 +625,7 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
 
         self.slider_z.valueChanged.connect(self._onSliderZValueChanged)
 
-    @Property(float)
+    @QtProperty(float)
     def progressZ(self):
         return self._progress_z
 
@@ -759,10 +760,10 @@ class SiCoordinatePicker3D(SiCoordinatePicker2D):
 
 
 class SiWheelSpinBox(QSpinBox):
-    limitReached = pyqtSignal(float)
-    carried = pyqtSignal(int)
-    increased = pyqtSignal()
-    decreased = pyqtSignal()
+    limitReached = Signal(float)
+    carried = Signal(int)
+    increased = Signal()
+    decreased = Signal()
 
     def wheelEvent(self, e):
         super().wheelEvent(e)
@@ -798,9 +799,9 @@ class SiWheelSpinBox(QSpinBox):
 
 class SiWeekdaySpinBox(QSpinBox):
     WEEKDAYS = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
-    limitReached = pyqtSignal(float)
-    increased = pyqtSignal()
-    decreased = pyqtSignal()
+    limitReached = Signal(float)
+    increased = Signal()
+    decreased = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1087,7 +1088,7 @@ class ScrollBarStyleData:
 
 
 class SiScrollBar(QScrollBar):
-    class Property:
+    class SiScrollBarProperty:
         ThumbColor = "thumbColor"
         TrackProgress = "trackProgress"
         ColorOpacity = "colorOpacity"
@@ -1108,19 +1109,19 @@ class SiScrollBar(QScrollBar):
         self._value_to_tooltip_func = self._defaultValueToToolTip
         self._is_draw_track = True
 
-        self.thumb_color_ani = SiExpAnimationRefactor(self, self.Property.ThumbColor)
+        self.thumb_color_ani = SiExpAnimationRefactor(self, self.SiScrollBarProperty.ThumbColor)
         self.thumb_color_ani.init(1 / 4, 0.01, self._thumb_color, self._thumb_color)
 
-        self.progress_ani = SiExpAnimationRefactor(self, self.Property.TrackProgress)
+        self.progress_ani = SiExpAnimationRefactor(self, self.SiScrollBarProperty.TrackProgress)
         self.progress_ani.init(1 / 3.5, 0.00001, 0, 0)
 
-        self.color_opacity_ani = SiExpAnimationRefactor(self, self.Property.ColorOpacity)
+        self.color_opacity_ani = SiExpAnimationRefactor(self, self.SiScrollBarProperty.ColorOpacity)
         self.color_opacity_ani.init(1 / 6, 0.00001, 1, 1)
 
         self.valueChanged.connect(self._onValueChanged)
         self.rangeChanged.connect(self._onRangeChanged)
 
-    @pyqtProperty(QColor)
+    @QtProperty(QColor)
     def thumbColor(self):
         return self._thumb_color
 
@@ -1129,7 +1130,7 @@ class SiScrollBar(QScrollBar):
         self._thumb_color = value
         self.update()
 
-    @pyqtProperty(float)
+    @QtProperty(float)
     def trackProgress(self):
         return self._track_progress
 
@@ -1138,7 +1139,7 @@ class SiScrollBar(QScrollBar):
         self._track_progress = value
         self.update()
 
-    @pyqtProperty(float)
+    @QtProperty(float)
     def colorOpacity(self):
         return self._color_opacity
 
@@ -1177,7 +1178,7 @@ class SiScrollBar(QScrollBar):
             self.color_opacity_ani.start()
 
             p = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
-            self.setProperty(self.Property.TrackProgress, p)
+            self.setProperty(self.SiScrollBarProperty.TrackProgress, p)
             self.progress_ani.fromProperty()
             self.progress_ani.setCurrentValue(p)
             self.progress_ani.setEndValue(p)
@@ -1344,7 +1345,7 @@ class SiScrollBar(QScrollBar):
 
 
 class SiScrollAreaRefactor(QScrollArea):
-    class Property:
+    class SiScrollAreaRefactorProperty:
         ContentsPos = "contentsPos"
 
     def __init__(self, parent: T_WidgetParent = None) -> None:
@@ -1354,7 +1355,7 @@ class SiScrollAreaRefactor(QScrollArea):
 
         self._contents_visual_pos = QPointF(0.0, 0.0)
         self._contents_anchor_pos = QPointF(0.0, 0.0)
-        self.contents_pos_ani = SiExpAnimationRefactor(self, self.Property.ContentsPos)
+        self.contents_pos_ani = SiExpAnimationRefactor(self, self.SiScrollAreaRefactorProperty.ContentsPos)
         self.contents_pos_ani.init(1 / 6, 2, self._contents_visual_pos, self._contents_visual_pos)
 
         self._initScrollBar()
@@ -1364,7 +1365,7 @@ class SiScrollAreaRefactor(QScrollArea):
         self.pileScrollTimer.setSingleShot(True)
         self.pileScrollTimer.timeout.connect(self._onPileScrollTriggered)
 
-    @pyqtProperty(QPointF)
+    @QtProperty(QPointF)
     def contentsPos(self):
         return self._contents_visual_pos
 

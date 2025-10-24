@@ -1,8 +1,19 @@
 from __future__ import annotations
 
-from PyQt5.QtCore import QEvent, QMargins, QObject, QPoint, QRect, QRectF, QSize, Qt, QTimer, pyqtProperty, pyqtSignal
-from PyQt5.QtGui import QColor, QIcon, QKeySequence, QPainter, QPainterPath, QTextOption
-from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QHBoxLayout, QLabel, QMenu, QSpacerItem, QWidget
+from PySide6.QtCore import Property as QtProperty
+from PySide6.QtCore import QEvent, QMargins, QObject, QPoint, QRect, QRectF, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
+    QColor,
+    QGuiApplication,
+    QIcon,
+    QKeySequence,
+    QPainter,
+    QPainterPath,
+    QTextOption,
+)
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QLabel, QMenu, QSpacerItem, QWidget
 
 from siui.components.button import SiTransparentButton
 from siui.components.container import SiDenseContainer
@@ -10,10 +21,10 @@ from siui.components.label import SiRoundPixmapWidget
 from siui.components.slider_ import SiScrollAreaRefactor
 from siui.core import SiQuickEffect, createPainter
 from siui.core.animation import SiExpAnimationRefactor
-from siui.core.event_filter import DebugEventFilter, WidgetTooltipAcceptEventFilter
+from siui.core.event_filter import WidgetTooltipAcceptEventFilter
 from siui.core.globals import SiGlobal
 from siui.gui import SiFont
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 class CheckedIndicatorStyleData:
@@ -126,8 +137,9 @@ class SiMenuItem(QObject):
 
 class SiMenuItemWidget(QWidget):
     """所有菜单项 widget 的基类"""
-    reachedEnd = pyqtSignal()
-    peeked = pyqtSignal(QAction)
+
+    reachedEnd = Signal()
+    peeked = Signal(QAction)
 
     def __init__(self, action: QAction | None, parent=None):
         super().__init__(parent)
@@ -551,7 +563,7 @@ class SiRoundedMenuActivationFilter(QObject):
 
 
 class SiRoundedMenu(QMenu):
-    class Property:
+    class SiRoundedMenuProperty:
         ViewSize = "viewSize"
 
     def __init__(self, parent: T_WidgetParent = None) -> None:
@@ -559,12 +571,7 @@ class SiRoundedMenu(QMenu):
 
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setWindowFlags(
-            Qt.FramelessWindowHint
-            | Qt.Popup
-            | Qt.NoDropShadowWindowHint
-            | Qt.Tool
-        )
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup | Qt.NoDropShadowWindowHint | Qt.Tool)
 
         self._items: list[SiMenuItem] = []
         self._widgets: dict[SiMenuItem, SiMenuItemWidget] = {}
@@ -582,7 +589,7 @@ class SiRoundedMenu(QMenu):
         self._scroll_area = SiScrollAreaRefactor(self)
         self._container = SiDenseContainer(self._scroll_area, SiDenseContainer.TopToBottom)
 
-        self.ani_scroll_area_size = SiExpAnimationRefactor(self, self.Property.ViewSize)
+        self.ani_scroll_area_size = SiExpAnimationRefactor(self, self.SiRoundedMenuProperty.ViewSize)
         self.ani_scroll_area_size.init(1 / 6, 1, self._scroll_area_size, self._scroll_area_size)
 
         self._initStyle()
@@ -593,11 +600,7 @@ class SiRoundedMenu(QMenu):
         border = self.style_data.border_color.name()
 
         self._background.move(self._margins.left(), self._margins.top())
-        self._background.setStyleSheet(
-            f"background-color: {background};"
-            f"border: 1px solid {border};"
-            "border-radius: 6px;"
-        )
+        self._background.setStyleSheet(f"background-color: {background};border: 1px solid {border};border-radius: 6px;")
 
         self._scroll_area.setWidget(self._container)
         self._scroll_area.setViewportMargins(0, 1, -8, 1)
@@ -616,7 +619,7 @@ class SiRoundedMenu(QMenu):
     def _applyGraphicEffect(self) -> None:
         SiQuickEffect.applyDropShadowOn(self._background, color=(0, 0, 0, 128))
 
-    @pyqtProperty(QSize)
+    @QtProperty(QSize)
     def viewSize(self):
         return self._scroll_area_size
 
@@ -790,8 +793,9 @@ class SiRoundedMenu(QMenu):
 
         return new_action
 
-    def insertCustomWidget(self, before: QAction, action: QAction,
-                           widget_cls: type[SiMenuItemWidget]) -> QAction | None:
+    def insertCustomWidget(
+        self, before: QAction, action: QAction, widget_cls: type[SiMenuItemWidget]
+    ) -> QAction | None:
         new_action = super().addAction(action)
 
         item = SiMenuItem(self, SiMenuItem.Type.Custom, action, widget_cls)
@@ -850,14 +854,42 @@ class SiRoundedMenu(QMenu):
         return isinstance(self.parent(), SiRoundedMenu)
 
     def sizeHint(self):
-        screen_rect = QApplication.desktop().availableGeometry()
-        container_size = self._container.size()
-        expanded_rect = container_size.grownBy(self._margins)
+        """计算菜单的推荐尺寸，考虑屏幕限制"""
+        try:
+            base_hint = super().sizeHint()
 
-        width = expanded_rect.width()
-        height = min(expanded_rect.height() + 2, screen_rect.height(), self.maximumHeight())
+            screen = self._get_current_screen()
+            if not screen:
+                return base_hint
 
-        return QSize(width, height)
+            available_geometry = screen.availableGeometry()
+
+            max_width = int(available_geometry.width() * 0.5)
+            max_height = int(available_geometry.height() * 0.7)
+
+            width = min(base_hint.width(), max_width)
+            height = min(base_hint.height(), max_height)
+
+            return QSize(width, height)
+
+        except Exception as e:
+            print(f"Error calculating menu size hint: {e}")
+            return super().sizeHint()
+
+    def _get_current_screen(self):
+        """获取当前窗口所在的屏幕"""
+        if self.parent() and self.parent().window():
+            return self.parent().window().screen()
+
+        app = QApplication.instance()
+        if app and app.primaryScreen():
+            return app.primaryScreen()
+
+        screens = QGuiApplication.screens()
+        if screens:
+            return screens[0]
+
+        return None
 
     def _updateComponentsVisibility(self) -> None:
         item_in_section = []
@@ -963,6 +995,3 @@ class SiRoundedMenu(QMenu):
 
     def resizeEvent(self, a0):
         super().resizeEvent(a0)
-
-
-

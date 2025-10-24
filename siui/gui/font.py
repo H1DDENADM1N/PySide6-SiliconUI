@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication
 
 from siui.core.token import FontStyle, GlobalFont, GlobalFontSize, GlobalFontWeight
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    pass
 
 
 class SiFont:
@@ -44,13 +45,17 @@ class SiFont:
 
         """
         if families is None:
-            families = qApp.font().families() or [
-                "Segoe UI",
-                "Microsoft YaHei",
-                "San Francisco Fonts",
-                ".PingFang TC",
-                "PingFang SC",
-            ]
+            app = QApplication.instance()
+            if app:
+                families = app.font().families()
+            if not families:
+                families = [
+                    "Segoe UI",
+                    "Microsoft YaHei",
+                    "San Francisco Fonts",
+                    ".PingFang TC",
+                    "PingFang SC",
+                ]
 
         font = QFont()
         font.setFamilies(families)

@@ -18,7 +18,11 @@ class ABCButton(QPushButton):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        super().setStyleSheet("background-color: transparent")
+        super().setStyleSheet("""
+            background-color: transparent;
+            border: none;
+            outline: none;
+        """)
 
         self.hint = ""
         self.color_group = SiColorGroup(reference=SiGlobal.siui.colors)

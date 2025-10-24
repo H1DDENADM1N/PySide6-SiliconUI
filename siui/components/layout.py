@@ -6,22 +6,22 @@ from PyQt5.QtWidgets import QLayout, QLayoutItem, QWidget, QWidgetItem
 
 from siui.core import SiQuickEffect
 from siui.core.animation import SiExpAnimationRefactor
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 class AnimatedWidgetItem(QWidgetItem):
-    class Property:
+    class AnimatedWidgetItemProperty:
         Geometry = "geometry"
 
     def __init__(self, parent: T_WidgetParent = None) -> None:
         super().__init__(parent)
 
-        self.ani_geometry = SiExpAnimationRefactor(parent, self.Property.Geometry)
-        self.ani_geometry.init(1/4, 0.2, self.geometry(), self.geometry())
+        self.ani_geometry = SiExpAnimationRefactor(parent, self.AnimatedWidgetItemProperty.Geometry)
+        self.ani_geometry.init(1 / 4, 0.2, self.geometry(), self.geometry())
 
     def animation(self, prop_name: str) -> SiExpAnimationRefactor:
         return {
-            self.Property.Geometry: self.ani_geometry,
+            self.AnimatedWidgetItemProperty.Geometry: self.ani_geometry,
         }.get(prop_name)
 
     def setGeometry(self, a0):
@@ -44,9 +44,9 @@ class DraggingEventFilter(QObject):
         self._is_dragging = False
         self._drag_start_pos = QPoint()
         self._widget_start_pos = QPoint()
-        self._item = item           # LayoutItem
-        self._target = target       # move 的作用对象
-        self._trigger = trigger     # 谁触发拖动
+        self._item = item  # LayoutItem
+        self._target = target  # move 的作用对象
+        self._trigger = trigger  # 谁触发拖动
 
         self.dropped.connect(self._onDropped)
         self.dragged.connect(self._onDragged)
@@ -137,8 +137,7 @@ class DraggingEventFilter(QObject):
 
 
 class DraggableWidgetItem(QWidgetItem):
-
-    class Property:
+    class DraggableWidgetItemProperty:
         Geometry = "geometry"
 
     def __init__(self, parent: T_WidgetParent, trigger: T_WidgetParent) -> None:
@@ -148,8 +147,8 @@ class DraggableWidgetItem(QWidgetItem):
         self._trigger = trigger
         self._trigger.installEventFilter(self._event_filter)
 
-        self.ani_geometry = SiExpAnimationRefactor(parent, self.Property.Geometry)
-        self.ani_geometry.init(1/4, 0.2, self.geometry(), self.geometry())
+        self.ani_geometry = SiExpAnimationRefactor(parent, self.DraggableWidgetItemProperty.Geometry)
+        self.ani_geometry.init(1 / 4, 0.2, self.geometry(), self.geometry())
 
     def trigger(self) -> QWidget:
         return self._trigger
@@ -162,7 +161,7 @@ class DraggableWidgetItem(QWidgetItem):
 
     def animation(self, prop_name: str) -> SiExpAnimationRefactor:
         return {
-            self.Property.Geometry: self.ani_geometry,
+            self.DraggableWidgetItemProperty.Geometry: self.ani_geometry,
         }.get(prop_name)
 
     def setGeometry(self, a0):

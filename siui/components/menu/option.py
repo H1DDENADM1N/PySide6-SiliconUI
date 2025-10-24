@@ -1,11 +1,9 @@
 from PySide6.QtCore import QPoint, Qt, QTimer
-from PySide6.QtWidgets import QAction
 
 from siui.components.widgets.button import SiSimpleButton
 from siui.components.widgets.container import SiDenseHContainer
 from siui.components.widgets.label import SiLabel, SiSvgLabel
-from siui.core import SiColor
-from siui.core import Si
+from siui.core import Si, SiColor
 
 
 class OptionButton(SiSimpleButton):

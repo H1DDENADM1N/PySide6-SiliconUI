@@ -4,14 +4,15 @@ import math
 import warnings
 
 import numpy
-from PySide6.QtCore import QEvent, QPointF, QRect, QRectF, QSize, Qt, pyqtProperty
+from PySide6.QtCore import Property as QtProperty
+from PySide6.QtCore import QEvent, QPointF, QRect, QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPaintEvent, QPixmap
 from PySide6.QtWidgets import QLabel, QWidget
 
 from siui.core import SiColor, SiGlobal, createPainter
 from siui.core.animation import SiExpAnimationRefactor
 from siui.core.painter import getSuperRoundedRectPath
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 # @dataclass
@@ -109,7 +110,7 @@ class SiLabelRefactor(QLabel):
 
 
 class SiAnimatedColorWidget(QWidget):
-    class Property:
+    class SiAnimatedColorWidgetProperty:
         BackgroundColor = "backgroundColor"
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -118,10 +119,10 @@ class SiAnimatedColorWidget(QWidget):
         self._background_color = QColor("#00000000")
         self._border_radius = 0.0
 
-        self.color_ani = SiExpAnimationRefactor(self, self.Property.BackgroundColor)
+        self.color_ani = SiExpAnimationRefactor(self, self.SiAnimatedColorWidgetProperty.BackgroundColor)
         self.color_ani.init(1 / 8, 0.01, self._background_color, self._background_color)
 
-    @pyqtProperty(QColor)
+    @QtProperty(QColor)
     def backgroundColor(self):
         return self._background_color
 
@@ -222,8 +223,9 @@ class SiRoundPixmapWidget(QWidget):
         target_rect = QRect(x, y, width, height)
         size = QSize(width, height) * device_pixel_ratio
 
-        pixmap = self._pixmap.scaled(size, transformMode=Qt.TransformationMode.SmoothTransformation)
-
+        pixmap = self._pixmap.scaled(
+            size, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation
+        )
         path = QPainterPath()
         path.addRoundedRect(x, y, width, height, border_radius, border_radius)
         painter.setClipPath(path)
@@ -372,7 +374,7 @@ class LinearIndicatorStyleData:
 
 
 class SiLinearIndicator(QWidget):
-    class Property:
+    class SiLinearIndicatorProperty:
         Color = "color"
         VisualWidth = "visualWidth"
         VisualHeight = "visualHeight"
@@ -386,16 +388,16 @@ class SiLinearIndicator(QWidget):
         self._border_radius = 4.0
         self._color = self.style_data.hl_color_inactive
 
-        self.visual_width_ani = SiExpAnimationRefactor(self, self.Property.VisualWidth)
+        self.visual_width_ani = SiExpAnimationRefactor(self, self.SiLinearIndicatorProperty.VisualWidth)
         self.visual_width_ani.init(1 / 4, 0.0001, self._visual_width, self._visual_width)
 
-        self.visual_height_ani = SiExpAnimationRefactor(self, self.Property.VisualHeight)
+        self.visual_height_ani = SiExpAnimationRefactor(self, self.SiLinearIndicatorProperty.VisualHeight)
         self.visual_height_ani.init(1 / 4, 0.0001, self._visual_height, self._visual_height)
 
-        self.color_ani = SiExpAnimationRefactor(self, self.Property.Color)
+        self.color_ani = SiExpAnimationRefactor(self, self.SiLinearIndicatorProperty.Color)
         self.color_ani.init(1 / 8, 0.0001, self._color, self._color)
 
-    @pyqtProperty(float)
+    @QtProperty(float)
     def visualWidth(self):
         return self._visual_width
 
@@ -404,7 +406,7 @@ class SiLinearIndicator(QWidget):
         self._visual_width = value
         self.update()
 
-    @pyqtProperty(float)
+    @QtProperty(float)
     def visualHeight(self):
         return self._visual_height
 
@@ -413,7 +415,7 @@ class SiLinearIndicator(QWidget):
         self._visual_height = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @QtProperty(QColor)
     def color(self):
         return self._color
 
@@ -511,7 +513,7 @@ class SiLinearIndicator(QWidget):
 
 
 class SiLinearPartitionIndicator(SiLinearIndicator):
-    class Property:
+    class SiLinearPartitionIndicatorProperty:
         Color = "color"
         VisualWidth = "visualWidth"
         VisualHeight = "visualHeight"
@@ -526,10 +528,10 @@ class SiLinearPartitionIndicator(SiLinearIndicator):
         self._indicator_end_index = 1
         self._hl_rect = QRectF()
 
-        self.hl_rect_ani = SiExpAnimationRefactor(self, self.Property.HighlightRect)
+        self.hl_rect_ani = SiExpAnimationRefactor(self, self.SiLinearPartitionIndicatorProperty.HighlightRect)
         self.hl_rect_ani.init(1 / 4, 0.0001, self._hl_rect, self._hl_rect)
 
-    @pyqtProperty(QRectF)
+    @QtProperty(QRectF)
     def highlightRect(self):
         return self._hl_rect
 

@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import overload
-
-from PyQt5.QtCore import QRectF, QSize, Qt
-from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPixmap
-from PyQt5.QtWidgets import QBoxLayout, QLabel, QWidget, QSizePolicy
+from PySide6.QtCore import QRectF, QSize, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPixmap
+from PySide6.QtWidgets import QBoxLayout, QLabel, QSizePolicy, QWidget
 
 from siui.components.label import SiRoundPixmapWidget
 from siui.core import GlobalFont, createPainter
 from siui.gui import SiFont
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 class SiBoxContainer(QWidget):
@@ -19,9 +16,7 @@ class SiBoxContainer(QWidget):
     TopToBottom = QBoxLayout.TopToBottom
     BottomToTop = QBoxLayout.BottomToTop
 
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
+    def __init__(self, parent: T_WidgetParent = None, direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
         super().__init__(parent)
 
         layout = QBoxLayout(direction)
@@ -38,9 +33,7 @@ class SiDenseContainer(QWidget):
     TopToBottom = QBoxLayout.TopToBottom
     BottomToTop = QBoxLayout.BottomToTop
 
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
+    def __init__(self, parent: T_WidgetParent = None, direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
         super().__init__(parent)
 
         self._is_stretch_widget_muted = False
@@ -73,9 +66,10 @@ class SiDenseContainer(QWidget):
         if side & Qt.LeftEdge or side & Qt.TopEdge:
             self.layout().insertWidget(sw_index, widget)
         elif side & Qt.RightEdge or side & Qt.BottomEdge:
-            self.layout().insertWidget(sw_index+1, widget)
+            self.layout().insertWidget(sw_index + 1, widget)
         else:
             raise ValueError(f"Unexpected side: {side}")
+
 
 class PanelCardStyleData:
     background_fore_color: QColor = QColor("#332e38")
@@ -89,9 +83,7 @@ class SiPanelCard(SiDenseContainer):
     提供“立体样式”的卡片样容器
     """
 
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
+    def __init__(self, parent: T_WidgetParent = None, direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
         super().__init__(parent, direction)
 
         self.style_data = PanelCardStyleData()
@@ -129,9 +121,11 @@ class SiPanelCard(SiDenseContainer):
 
 
 class SiTriSectionPanelCard(SiPanelCard):
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 title: str = "Tri-Section Panel Card",) -> None:
+    def __init__(
+        self,
+        parent: T_WidgetParent = None,
+        title: str = "Tri-Section Panel Card",
+    ) -> None:
         super().__init__(parent, self.TopToBottom)
 
         self._header = SiDenseContainer(self, self.LeftToRight)
@@ -195,9 +189,7 @@ class SiRowCard(SiDenseContainer):
     提供“平面化样式”的条状卡片样容器
     """
 
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
+    def __init__(self, parent: T_WidgetParent = None, direction: QBoxLayout.Direction = QBoxLayout.LeftToRight) -> None:
         super().__init__(parent, direction)
 
         self.style_data = RowCardStyleData()
@@ -224,11 +216,13 @@ class SiRowCard(SiDenseContainer):
 
 
 class SiTriSectionRowCard(SiRowCard):
-    def __init__(self,
-                 parent: T_WidgetParent = None,
-                 pixmap: QPixmap | None = None,
-                 title: str = "Tri-Section Row Card",
-                 description: str = "This is the description text of this card.") -> None:
+    def __init__(
+        self,
+        parent: T_WidgetParent = None,
+        pixmap: QPixmap | None = None,
+        title: str = "Tri-Section Row Card",
+        description: str = "This is the description text of this card.",
+    ) -> None:
         super().__init__(parent, self.LeftToRight)
 
         self._icon_container = SiDenseContainer(self, self.TopToBottom)
@@ -258,14 +252,10 @@ class SiTriSectionRowCard(SiRowCard):
         self._icon.setVisualSize(QSize(32, 32))
 
         self._title.setFont(SiFont.tokenized(GlobalFont.S_BOLD))
-        self._title.setStyleSheet(
-            "color: #D1CBD4"
-        )
+        self._title.setStyleSheet("color: #D1CBD4")
 
         self._description.setFont(SiFont.tokenized(GlobalFont.S_NORMAL))
-        self._description.setStyleSheet(
-            "color: #918497"
-        )
+        self._description.setStyleSheet("color: #918497")
 
         self._icon_container.setFixedWidth(80)
         self._icon_container.layout().setSpacing(0)
@@ -294,6 +284,7 @@ class SiTriSectionRowCard(SiRowCard):
 
     def descriptionLabel(self) -> QLabel:
         return self._description
+
 
 #
 # class SiStackWidget():

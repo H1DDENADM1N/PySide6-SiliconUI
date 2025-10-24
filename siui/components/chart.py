@@ -1,5 +1,3 @@
-from dataclasses import dataclass, field
-
 from PySide6.QtCore import Property, QEvent, QLineF, QPoint, QPointF, QRect, QRectF, Qt
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
 from PySide6.QtWidgets import QWidget
@@ -11,18 +9,18 @@ from siui.siui_typing import T_WidgetParent
 
 # @dataclass
 class TrendChartStyleData:
-    background_color: QColor = field(default_factory=lambda: QColor("#25222a"))
-    major_tick_color: QColor = field(default_factory=lambda: QColor("#433b49"))
-    minor_tick_color: QColor = field(default_factory=lambda: QColor("#2e2a34"))
-    axis_tick_color: QColor = field(default_factory=lambda: QColor("#6a5e73"))
+    background_color: QColor = QColor("#25222a")
+    major_tick_color: QColor = QColor("#433b49")
+    minor_tick_color: QColor = QColor("#2e2a34")
+    axis_tick_color: QColor = QColor("#6a5e73")
 
-    axis_label_color: QColor = field(default_factory=lambda: QColor("#918497"))
-    axis_name_color: QColor = field(default_factory=lambda: QColor("#DFDFDF"))
+    axis_label_color: QColor = QColor("#918497")
+    axis_name_color: QColor = QColor("#DFDFDF")
 
-    line_color: QColor = field(default_factory=lambda: QColor("#D087DF"))
-    indicator_idle_color: QColor = field(default_factory=lambda: QColor("#00DFDFDF"))
-    indicator_hover_color: QColor = field(default_factory=lambda: QColor("#FFDFDFDF"))
-    tick_text_color: QColor = field(default_factory=lambda: QColor("#918497"))
+    line_color: QColor = QColor("#D087DF")
+    indicator_idle_color: QColor = QColor("#00DFDFDF")
+    indicator_hover_color: QColor = QColor("#FFDFDFDF")
+    tick_text_color: QColor = QColor("#918497")
 
     axis_y_label_width: int = 64
     axis_y_name_width: int = 32

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from PyQt5.QtCore import QDate, QEvent, QPoint, QPointF, QRectF, QSize, Qt, pyqtProperty, pyqtSignal
-from PyQt5.QtGui import QColor, QPainter, QPainterPath
-from PyQt5.QtWidgets import QButtonGroup, QLabel, QMenu, QStackedWidget, QWidget
+from PySide6.QtCore import Property as QtProperty
+from PySide6.QtCore import QDate, QEvent, QPoint, QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtGui import QColor, QPainter, QPainterPath
+from PySide6.QtWidgets import QButtonGroup, QLabel, QMenu, QStackedWidget, QWidget
 
 from siui.components.button import SiFlatButton, SiFlatButtonWithIndicator
 from siui.components.container import SiDenseContainer
@@ -12,7 +13,7 @@ from siui.core import SiQuickEffect, createPainter
 from siui.core.animation import SiExpAnimationRefactor
 from siui.core.globals import SiGlobal
 from siui.gui import SiFont
-from siui.typing import T_WidgetParent
+from siui.siui_typing import T_WidgetParent
 
 
 class SiPopover(QMenu):
@@ -44,8 +45,8 @@ class SiPopover(QMenu):
 
     def resizeEvent(self, a0):
         p = self._padding
-        self._shadow_frame.setGeometry(p+1, p+1, self.width()-2*p-2, self.height()-2*p-2)
-        self._wrapper.setGeometry(p, p, self.width()-2*p, self.height()-2*p)
+        self._shadow_frame.setGeometry(p + 1, p + 1, self.width() - 2 * p - 2, self.height() - 2 * p - 2)
+        self._wrapper.setGeometry(p, p, self.width() - 2 * p, self.height() - 2 * p)
 
     def sizeHint(self):
         size = self._wrapper.widget().sizeHint()
@@ -195,7 +196,8 @@ class SiPopoverDatePicker(SiDenseContainer):
         self._set_to_today_button.setFixedSize(36, 36)
         self._set_to_today_button.setToolTip("设为今天")
         self._set_to_today_button.setSvgIcon(
-            SiGlobal.siui.iconpack.get("ic_fluent_calendar_arrow_counterclockwise_regular"))
+            SiGlobal.siui.iconpack.get("ic_fluent_calendar_arrow_counterclockwise_regular")
+        )
 
     def _initSignal(self) -> None:
         self._set_to_today_button.clicked.connect(self.setToToday)
@@ -204,13 +206,15 @@ class SiPopoverDatePicker(SiDenseContainer):
         self._month_picker.spinBox().increased.connect(lambda: self._onPickerScrolled(1, self._month_picker))
         self._day_picker.spinBox().increased.connect(lambda: self._onPickerScrolled(1, self._day_picker))
         self._day_of_week_picker.spinBox().increased.connect(
-            lambda: self._onPickerScrolled(1, self._day_of_week_picker))
+            lambda: self._onPickerScrolled(1, self._day_of_week_picker)
+        )
 
         self._year_picker.spinBox().decreased.connect(lambda: self._onPickerScrolled(-1, self._year_picker))
         self._month_picker.spinBox().decreased.connect(lambda: self._onPickerScrolled(-1, self._month_picker))
         self._day_picker.spinBox().decreased.connect(lambda: self._onPickerScrolled(-1, self._day_picker))
         self._day_of_week_picker.spinBox().decreased.connect(
-            lambda: self._onPickerScrolled(-1, self._day_of_week_picker))
+            lambda: self._onPickerScrolled(-1, self._day_of_week_picker)
+        )
 
     def _updatePickerByDate(self) -> None:
         day = self._date.day()
@@ -245,8 +249,8 @@ class SiPopoverDatePicker(SiDenseContainer):
 
 
 class SiCalenderDateWidget(QWidget):
-    hovered = pyqtSignal(QWidget)
-    clicked = pyqtSignal(QWidget)
+    hovered = Signal(QWidget)
+    clicked = Signal(QWidget)
 
     class VisualState:
         Muted = 0
@@ -340,11 +344,11 @@ class AnimatedCalenderStyleData:
 
 
 class SiAnimatedCalender(SiDenseContainer):
-    pageChanged = pyqtSignal(int)
-    selectedDateChanged = pyqtSignal(QDate)
+    pageChanged = Signal(int)
+    selectedDateChanged = Signal(QDate)
     # focus
 
-    class Property:
+    class SiAnimatedCalenderProperty:
         IndicatorPos = "indicatorPos"
         IndicatorColor = "indicatorColor"
         CursorIndicatorPos = "cursorIndicatorPos"
@@ -366,17 +370,17 @@ class SiAnimatedCalender(SiDenseContainer):
         self._cur_indi_pos = QPointF(0, 0)
         self._cur_indi_color = QColor("#004C4554")
 
-        self.ani_indi_pos = SiExpAnimationRefactor(self, self.Property.IndicatorPos)
-        self.ani_indi_pos.init(1/4, 0.01, self._indi_pos, self._indi_pos)
+        self.ani_indi_pos = SiExpAnimationRefactor(self, self.SiAnimatedCalenderProperty.IndicatorPos)
+        self.ani_indi_pos.init(1 / 4, 0.01, self._indi_pos, self._indi_pos)
 
-        self.ani_indi_color = SiExpAnimationRefactor(self, self.Property.IndicatorColor)
-        self.ani_indi_color.init(1/8, 0.01, self._indi_color, self._indi_color)
+        self.ani_indi_color = SiExpAnimationRefactor(self, self.SiAnimatedCalenderProperty.IndicatorColor)
+        self.ani_indi_color.init(1 / 8, 0.01, self._indi_color, self._indi_color)
 
-        self.ani_cur_indi_pos = SiExpAnimationRefactor(self, self.Property.CursorIndicatorPos)
-        self.ani_cur_indi_pos.init(1/4, 0.01, self._cur_indi_pos, self._cur_indi_pos)
+        self.ani_cur_indi_pos = SiExpAnimationRefactor(self, self.SiAnimatedCalenderProperty.CursorIndicatorPos)
+        self.ani_cur_indi_pos.init(1 / 4, 0.01, self._cur_indi_pos, self._cur_indi_pos)
 
-        self.ani_cur_indi_color = SiExpAnimationRefactor(self, self.Property.CursorIndicatorColor)
-        self.ani_cur_indi_color.init(1/8, 0.01, self._cur_indi_color, self._cur_indi_color)
+        self.ani_cur_indi_color = SiExpAnimationRefactor(self, self.SiAnimatedCalenderProperty.CursorIndicatorColor)
+        self.ani_cur_indi_color.init(1 / 8, 0.01, self._cur_indi_color, self._cur_indi_color)
 
         self._createDayTypeLabels()
         self._createDayWidgets()
@@ -388,7 +392,7 @@ class SiAnimatedCalender(SiDenseContainer):
         self.layout().setSpacing(0)
         self.layout().removeWidget(self.stretchWidget())
 
-    @pyqtProperty(QPointF)
+    @QtProperty(QPointF)
     def indicatorPos(self):
         return self._indi_pos
 
@@ -397,7 +401,7 @@ class SiAnimatedCalender(SiDenseContainer):
         self._indi_pos = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @QtProperty(QColor)
     def indicatorColor(self):
         return self._indi_color
 
@@ -406,7 +410,7 @@ class SiAnimatedCalender(SiDenseContainer):
         self._indi_color = value
         self.update()
 
-    @pyqtProperty(QPointF)
+    @QtProperty(QPointF)
     def cursorIndicatorPos(self):
         return self._cur_indi_pos
 
@@ -415,7 +419,7 @@ class SiAnimatedCalender(SiDenseContainer):
         self._cur_indi_pos = value
         self.update()
 
-    @pyqtProperty(QColor)
+    @QtProperty(QColor)
     def cursorIndicatorColor(self):
         return self._cur_indi_color
 
@@ -437,7 +441,7 @@ class SiAnimatedCalender(SiDenseContainer):
         first_weekday = QDate(year, month, 1).dayOfWeek()  # 1=Monday, 7=Sunday
 
         # 以当前月第一天为基础向前推 (first_weekday - 1) 天
-        start_day = QDate(year, month, 1).addDays(- (first_weekday - 1))
+        start_day = QDate(year, month, 1).addDays(-(first_weekday - 1))
         all_dates = [start_day.addDays(i) for i in range(42)]
 
         selected_date = self._selected_date
@@ -584,9 +588,9 @@ class SiAnimatedCalender(SiDenseContainer):
     def _drawIndicator(self, painter: QPainter) -> None:
         path = QPainterPath()
         path.addRoundedRect(
-            QRectF(self._indi_pos.x(), self._indi_pos.y(),
-                   self._indi_size.width(), self._indi_size.height()),
-            self._indi_size.width() / 2, self._indi_size.height() / 2
+            QRectF(self._indi_pos.x(), self._indi_pos.y(), self._indi_size.width(), self._indi_size.height()),
+            self._indi_size.width() / 2,
+            self._indi_size.height() / 2,
         )
         painter.setBrush(self._indi_color)
         painter.drawPath(path)
@@ -594,9 +598,9 @@ class SiAnimatedCalender(SiDenseContainer):
     def _drawCursorIndicator(self, painter: QPainter) -> None:
         path = QPainterPath()
         path.addRoundedRect(
-            QRectF(self._cur_indi_pos.x(), self._cur_indi_pos.y(),
-                   self._indi_size.width(), self._indi_size.height()),
-            self._indi_size.width() / 2, self._indi_size.height() / 2
+            QRectF(self._cur_indi_pos.x(), self._cur_indi_pos.y(), self._indi_size.width(), self._indi_size.height()),
+            self._indi_size.width() / 2,
+            self._indi_size.height() / 2,
         )
         painter.setBrush(self._cur_indi_color)
         painter.drawPath(path)
@@ -604,9 +608,9 @@ class SiAnimatedCalender(SiDenseContainer):
     def paintEvent(self, a0):
         rect = self.rect()
         renderHints = (
-                QPainter.RenderHint.SmoothPixmapTransform
-                | QPainter.RenderHint.TextAntialiasing
-                | QPainter.RenderHint.Antialiasing
+            QPainter.RenderHint.SmoothPixmapTransform
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.Antialiasing
         )
 
         with createPainter(self, renderHints) as painter:
@@ -699,21 +703,20 @@ class SiPopoverCalenderPicker(SiDenseContainer):
         self._calender.setFixedSize(306, 300)
         self._calender.layout().setContentsMargins(12, 8, 12, 8)
 
-        self._pickers_container.setMinimumWidth(128+18+16)
+        self._pickers_container.setMinimumWidth(128 + 18 + 16)
         self._pickers_container.layout().setContentsMargins(0, 20, 18, 16)
         self._pickers_container.layout().setSpacing(10)
 
         self._next_page_btn.setFixedSize(36, 36)
-        self._next_page_btn.setSvgIcon(
-            SiGlobal.siui.iconpack.get("ic_fluent_caret_down_filled"))
+        self._next_page_btn.setSvgIcon(SiGlobal.siui.iconpack.get("ic_fluent_caret_down_filled"))
 
         self._prev_page_btn.setFixedSize(36, 36)
-        self._prev_page_btn.setSvgIcon(
-            SiGlobal.siui.iconpack.get("ic_fluent_caret_up_filled"))
+        self._prev_page_btn.setSvgIcon(SiGlobal.siui.iconpack.get("ic_fluent_caret_up_filled"))
 
         self._set_to_today_btn.setFixedSize(36, 36)
         self._set_to_today_btn.setSvgIcon(
-            SiGlobal.siui.iconpack.get("ic_fluent_calendar_arrow_counterclockwise_regular"))
+            SiGlobal.siui.iconpack.get("ic_fluent_calendar_arrow_counterclockwise_regular")
+        )
 
         self._calender_btn_container.layout().setSpacing(8)
         self._calender_btn_container.muteStretchWidget()
@@ -733,9 +736,11 @@ class SiPopoverCalenderPicker(SiDenseContainer):
 
         self._set_to_today_btn.clicked.connect(self.setToToday)
         self._prev_page_btn.clicked.connect(
-            lambda: self._calender.setFocusedDate(self._calender.focusedDate().addMonths(-1)))
+            lambda: self._calender.setFocusedDate(self._calender.focusedDate().addMonths(-1))
+        )
         self._next_page_btn.clicked.connect(
-            lambda: self._calender.setFocusedDate(self._calender.focusedDate().addMonths(1)))
+            lambda: self._calender.setFocusedDate(self._calender.focusedDate().addMonths(1))
+        )
 
     def _updatePickerByDate(self) -> None:
         day = self._date.day()
