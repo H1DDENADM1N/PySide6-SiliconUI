@@ -9,12 +9,8 @@ authors = [
 description = "Default template for PDM package"
 readme = "README.md"
 license = { file = "LICENSE", text = "GPLv3" }
-requires-python = "==3.12.*"
-dependencies = [
-    "PySide6==6.6.3.1",
-    "typing-extensions>=4.12.2",
-    "numpy==1.26.4",
-]
+requires-python = "==3.13.*"
+dependencies = ["pyside6==6.10.0", "numpy==2.3.4"]
 
 [project.urls]
 Repository = "https://github.com/H1DDENADM1N/PySide6-SiliconUI"

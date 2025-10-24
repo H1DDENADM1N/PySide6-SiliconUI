@@ -31,7 +31,11 @@ from PySide6.QtGui import (
 )
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QLabel, QPushButton, QRadioButton
-from typing_extensions import Self
+
+try:
+    from typing_extensions import Self
+except ImportError:
+    from typing import Self  # Python 3.11+
 
 from siui.core import GlobalFont, SiGlobal, createPainter
 from siui.core.animation import SiExpAnimationRefactor

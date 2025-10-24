@@ -12,10 +12,18 @@ from typing import Optional, Union
 from PySide6.QtCore import QObject, Qt
 from PySide6.QtGui import QColor, QGradient, QPainter, QPen
 from PySide6.QtWidgets import QWidget
-from typing_extensions import TypeAlias
 
-T_WidgetParent: TypeAlias = Optional[QWidget]
-"""Type of widget parent"""
+try:
+    from typing_extensions import TypeAlias
+except ImportError:
+    from typing import TypeAlias  # Python 3.10+ has TypeAlias in typing module
+
+    T_WidgetParent: TypeAlias = Optional[QWidget]
+    """Type of widget parent"""
+
+except ImportError:
+    T_WidgetParent = Optional[QWidget]
+    """Type of widget parent"""
 
 T_ObjectParent: TypeAlias = Optional[QObject]
 """Type of object parent"""
