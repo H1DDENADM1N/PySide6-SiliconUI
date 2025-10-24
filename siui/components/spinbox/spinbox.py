@@ -1,4 +1,4 @@
-from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from siui.components.widgets.button import SiSimpleButton
 from siui.components.widgets.line_edit import SiLineEdit
@@ -82,8 +82,7 @@ class SiIntSpinBox(ABCSiSpinBox):
             try:
                 SiGlobal.siui.windows["MAIN_WINDOW"].LayerRightMessageSidebar().send(
                     title="输入值超出范围",
-                    text=f"限制输入值为介于 {self.minimum()} 到 {self.maximum()} 的整数\n"
-                         "已修改为最接近的值",
+                    text=f"限制输入值为介于 {self.minimum()} 到 {self.maximum()} 的整数\n已修改为最接近的值",
                     msg_type=3,
                     icon=SiGlobal.siui.iconpack.get("ic_fluent_warning_regular"),
                     fold_after=2500,
@@ -113,8 +112,7 @@ class SiDoubleSpinBox(ABCSiSpinBox):
             try:
                 SiGlobal.siui.windows["MAIN_WINDOW"].LayerRightMessageSidebar().send(
                     title="输入值超出范围",
-                    text=f"限制输入值为介于 {self.minimum()} 到 {self.maximum()} 的浮点数\n"
-                         "已修改为最接近的值",
+                    text=f"限制输入值为介于 {self.minimum()} 到 {self.maximum()} 的浮点数\n已修改为最接近的值",
                     msg_type=3,
                     icon=SiGlobal.siui.iconpack.get("ic_fluent_warning_regular"),
                     fold_after=2500,

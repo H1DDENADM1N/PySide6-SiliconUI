@@ -2,9 +2,10 @@ import datetime
 import random
 
 import numpy
-from PySide6.QtCore import Qt
+
+from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QCursor, QIcon
-from PySide6.QtWidgets import QLabel
+from PySide6.QtWidgets import QGraphicsBlurEffect, QLabel
 
 from siui.components import (
     SiCircularProgressBar,
@@ -27,7 +28,7 @@ from siui.components.button import (
     SiToggleButtonRefactor,
 )
 from siui.components.combobox import SiComboBox
-from siui.components.editbox import SiLineEdit
+from siui.components.editbox import SiCapsuleLineEdit
 from siui.components.label import HyperRoundBorderTest
 from siui.components.menu import SiMenu
 from siui.components.page import SiPage
@@ -81,7 +82,7 @@ class ExampleWidgets(SiPage):
             # 文字标签
             self.label_for_text = OptionCardPlaneForWidgetDemos(self)
             self.label_for_text.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/label.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/label.py"
             )
             self.label_for_text.setTitle("文字标签")
 
@@ -107,7 +108,7 @@ class ExampleWidgets(SiPage):
             # 图片标签
             self.pix_label = OptionCardPlaneForWidgetDemos(self)
             self.pix_label.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/label.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/label.py"
             )
             self.pix_label.setTitle("图片标签")
 
@@ -119,13 +120,13 @@ class ExampleWidgets(SiPage):
             self.demo_pix_label_a.setFixedSize(80, 80)
             self.demo_pix_label_a.setBorderRadius(40)
             self.demo_pix_label_a.load("examples/Gallery for siui/img/avatar1.png")
-            self.demo_pix_label_a.setHint("<strong>尺寸：</strong> 80px * 80px<br>" "<strong>圆角半径：</strong> 40px")
+            self.demo_pix_label_a.setHint("<strong>尺寸：</strong> 80px * 80px<br><strong>圆角半径：</strong> 40px")
 
             self.demo_pix_label_b = SiPixLabel(self)
             self.demo_pix_label_b.setFixedSize(80, 80)
             self.demo_pix_label_b.setBorderRadius(32)
             self.demo_pix_label_b.load("examples/Gallery for siui/img/avatar1.png")
-            self.demo_pix_label_b.setHint("<strong>尺寸：</strong> 80px * 80px<br>" "<strong>圆角半径：</strong> 32px")
+            self.demo_pix_label_b.setHint("<strong>尺寸：</strong> 80px * 80px<br><strong>圆角半径：</strong> 32px")
 
             container_pix_label.addWidget(self.demo_pix_label_a)
             container_pix_label.addWidget(self.demo_pix_label_b)
@@ -137,7 +138,7 @@ class ExampleWidgets(SiPage):
             # 标签动画
             self.label_ani = OptionCardPlaneForWidgetDemos(self)
             self.label_ani.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/label.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/label.py"
             )
             self.label_ani.setTitle("标签动画")
             self.label_ani.setAdditionalDescription("特性")
@@ -186,7 +187,7 @@ class ExampleWidgets(SiPage):
             # 可拖动标签
             self.draggable_label = OptionCardPlaneForWidgetDemos(self)
             self.draggable_label.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui" "/components/widgets/label.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/label.py"
             )
             self.draggable_label.setTitle("可拖动标签")
 
@@ -198,7 +199,7 @@ class ExampleWidgets(SiPage):
             self.demo_draggable_label.setMoveLimits(0, 0, 526, 80)
             self.demo_draggable_label.resize(128, 32)
             self.demo_draggable_label.setHint(
-                "使用 setMoveLimits 方法限制移动范围" "\n移动动画（可禁用）提供更平滑的移动效果"
+                "使用 setMoveLimits 方法限制移动范围\n移动动画（可禁用）提供更平滑的移动效果"
             )
 
             self.draggable_label.body().addWidget(self.demo_drag_area)
@@ -208,7 +209,7 @@ class ExampleWidgets(SiPage):
             # 控件显示效果
             self.showup_effect = OptionCardPlaneForWidgetDemos(self)
             self.showup_effect.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui" "/components/widgets/label.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/label.py"
             )
             self.showup_effect.setTitle("控件显示效果")
 
@@ -247,7 +248,7 @@ class ExampleWidgets(SiPage):
             # 扩展控件
             self.expands = OptionCardPlaneForWidgetDemos(self)
             self.expands.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.expands.setTitle("扩展控件")
 
@@ -273,7 +274,7 @@ class ExampleWidgets(SiPage):
             # 按钮
             self.refactor_buttons = OptionCardPlaneForWidgetDemos(self)
             self.refactor_buttons.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.refactor_buttons.setTitle("重构的按钮")
 
@@ -339,16 +340,16 @@ class ExampleWidgets(SiPage):
             self.original_rect = QLabel(self)
             self.original_rect.resize(64, 64)
             self.original_rect.setStyleSheet(
-                "background-color: transparent; border-radius: 14px; border: 1px solid #a681bf"
+                "background-color: transparent; border-radius: 14px; border: 1px solid #D087DF"
             )
             # self.trend_chart.adjustViewRect()
             # print(self.trend_chart.viewRect())
 
-            self.linear_edit_box = SiLineEdit(self)
+            self.linear_edit_box = SiCapsuleLineEdit(self)
             self.linear_edit_box.resize(560, 36)
             self.linear_edit_box.setTitle("项目名称")
 
-            self.linear_edit_box2 = SiLineEdit(self)
+            self.linear_edit_box2 = SiCapsuleLineEdit(self)
             self.linear_edit_box2.resize(560, 36)
             self.linear_edit_box2.setTitle("项目所属人")
 
@@ -373,7 +374,7 @@ class ExampleWidgets(SiPage):
 
             self.refactor_radiobuttons = OptionCardPlaneForWidgetDemos(self)
             self.refactor_radiobuttons.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.refactor_radiobuttons.setTitle("单行单选框")
 
@@ -414,7 +415,7 @@ class ExampleWidgets(SiPage):
 
             self.refactor_radiobuttons_desc = OptionCardPlaneForWidgetDemos(self)
             self.refactor_radiobuttons_desc.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.refactor_radiobuttons_desc.setTitle("带解释的单选框")
 
@@ -451,7 +452,7 @@ class ExampleWidgets(SiPage):
 
             self.refactor_radiobuttons_avatar = OptionCardPlaneForWidgetDemos(self)
             self.refactor_radiobuttons_avatar.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.refactor_radiobuttons_avatar.setTitle("带头像的单选框")
 
@@ -489,7 +490,7 @@ class ExampleWidgets(SiPage):
             # 按钮
             self.push_buttons = OptionCardPlaneForWidgetDemos(self)
             self.push_buttons.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.push_buttons.setTitle("按压按钮")
 
@@ -520,7 +521,7 @@ class ExampleWidgets(SiPage):
             # 扁平类按钮
             self.flat_buttons = OptionCardPlaneForWidgetDemos(self)
             self.flat_buttons.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.flat_buttons.setTitle("扁平类按钮")
 
@@ -572,7 +573,7 @@ class ExampleWidgets(SiPage):
             # 开关
             self.switches = OptionCardPlaneForWidgetDemos(self)
             self.switches.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.switches.setTitle("开关")
 
@@ -585,7 +586,7 @@ class ExampleWidgets(SiPage):
             # 单选框
             self.radio_buttons = OptionCardPlaneForWidgetDemos(self)
             self.radio_buttons.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.radio_buttons.setTitle("单选框")
 
@@ -607,7 +608,7 @@ class ExampleWidgets(SiPage):
             # 多选框
             self.checkboxes = OptionCardPlaneForWidgetDemos(self)
             self.checkboxes.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/button.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/button.py"
             )
             self.checkboxes.setTitle("多选框")
 
@@ -639,7 +640,7 @@ class ExampleWidgets(SiPage):
             # 带删除单行输入组件
             self.line_edit_with_del_button = OptionCardPlaneForWidgetDemos(self)
             self.line_edit_with_del_button.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/slider/slider.py"
             )
             self.line_edit_with_del_button.setTitle("带删除单行输入组件")
 
@@ -654,7 +655,7 @@ class ExampleWidgets(SiPage):
             # 整数微调组件
             self.int_spin_box = OptionCardPlaneForWidgetDemos(self)
             self.int_spin_box.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/slider/slider.py"
             )
             self.int_spin_box.setTitle("整数微调组件")
 
@@ -668,7 +669,7 @@ class ExampleWidgets(SiPage):
             # 浮点数微调组件
             self.double_spin_box = OptionCardPlaneForWidgetDemos(self)
             self.double_spin_box.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/slider/slider.py"
             )
             self.double_spin_box.setTitle("浮点数微调组件")
 
@@ -682,7 +683,7 @@ class ExampleWidgets(SiPage):
             # 具名输入框
             self.named_line_edit = OptionCardPlaneForWidgetDemos(self)
             self.named_line_edit.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/slider/slider.py"
             )
             self.named_line_edit.setTitle("具名输入框")
 
@@ -719,7 +720,7 @@ class ExampleWidgets(SiPage):
             # 滑条
             self.sliders = OptionCardPlaneForWidgetDemos(self)
             self.sliders.setSourceCodeURL(
-                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components" "/widgets/slider/slider.py"
+                "https://github.com/H1DDENADM1N/PySide6-SiliconUI/blob/main/siui/components/widgets/slider/slider.py"
             )
             self.sliders.setTitle("滑条")
 

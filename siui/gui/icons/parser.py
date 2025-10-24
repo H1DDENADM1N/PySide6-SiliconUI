@@ -1,7 +1,7 @@
 import os
 
 from PySide6.QtCore import QByteArray, QSize, Qt
-from PySide6.QtGui import QPainter, QPixmap
+from PySide6.QtGui import QPainter, QPixmap, QIcon
 from PySide6.QtSvg import QSvgRenderer
 
 
@@ -13,9 +13,7 @@ class GlobalIconPack:
         self.default_color = None
 
         self.icons = {}
-        self.icons_classified = {
-            "__unclassified__": {}
-        }
+        self.icons_classified = {"__unclassified__": {}}
 
         # load internal icon packages
         self.reload_internals()
@@ -92,3 +90,6 @@ class GlobalIconPack:
         svg_renderer.render(painter)
         painter.end()
         return pixmap
+
+    def toIcon(self, name: str, size: QSize = QSize(64, 64), color_code: str = None) -> QIcon:
+        return QIcon(self.toPixmap(name, size, color_code))

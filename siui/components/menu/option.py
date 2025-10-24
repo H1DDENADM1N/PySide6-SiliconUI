@@ -1,4 +1,5 @@
 from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtWidgets import QAction
 
 from siui.components.widgets.button import SiSimpleButton
 from siui.components.widgets.container import SiDenseHContainer
@@ -29,12 +30,7 @@ class OptionButton(SiSimpleButton):
 
 
 class SiMenuOption(SiDenseHContainer):
-    def __init__(self,
-                 parent_menu,
-                 child_menu,
-                 text: str,
-                 value=None,
-                 icon=None):
+    def __init__(self, parent_menu, child_menu, text: str, value=None, icon=None):
         super().__init__(parent_menu)  # parent will be overwritten when added to container
 
         self.value_ = text if value is None else value
@@ -98,9 +94,7 @@ class SiMenuOption(SiDenseHContainer):
             self.setSelected(False)
         self.is_selectable = state
 
-    def setSelected(self,
-                    state: bool,
-                    has_signal: bool = True):
+    def setSelected(self, state: bool, has_signal: bool = True):
         """
         Set the select state of this option
         """
@@ -166,10 +160,12 @@ class SiMenuOption(SiDenseHContainer):
         self.text_label.setStyleSheet(f"color: {self.getColor(SiColor.TEXT_B)}")
 
         if self.child_menu is not None:
-            svg_arrow = ('<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" id="Outline" '
-                         'viewBox="0 0 24 24" width="512" height="512"><path d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,'
-                         '1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,'
-                         f'15.4,9.88Z" fill="{self.getColor(SiColor.SVG_NORMAL)}" /></svg>')
+            svg_arrow = (
+                '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" id="Outline" '
+                'viewBox="0 0 24 24" width="512" height="512"><path d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,'
+                "1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,"
+                f'15.4,9.88Z" fill="{self.getColor(SiColor.SVG_NORMAL)}" /></svg>'
+            )
             self.has_child_menu_indicator.load(svg_arrow.encode())
 
     def resizeEvent(self, event):

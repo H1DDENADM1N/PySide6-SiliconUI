@@ -394,31 +394,31 @@ class SiAnimationGroup:
 class TypeConversionFuncs:
     functions = {
         QPoint.__name__: [
-            lambda x: numpy.array((x.x(), x.y()), dtype="float32"),
+            lambda x: numpy.array((x.x(), x.y()), dtype="float64"),
             lambda x: QPoint(int(x[0]), int(x[1]))
         ],
         QPointF.__name__: [
-            lambda x: numpy.array((x.x(), x.y()), dtype="float32"),
+            lambda x: numpy.array((x.x(), x.y()), dtype="float64"),
             lambda x: QPointF(float(x[0]), float(x[1])),
         ],
         QSize.__name__: [
-            lambda x: numpy.array((x.width(), x.height()), dtype="float32"),
+            lambda x: numpy.array((x.width(), x.height()), dtype="float64"),
             lambda x: QSize(int(x[0]), int(x[1])),
         ],
         QSizeF.__name__: [
-            lambda x: numpy.array((x.width(), x.height()), dtype="float32"),
+            lambda x: numpy.array((x.width(), x.height()), dtype="float64"),
             lambda x: QSizeF(float(x[0]), float(x[1])),
         ],
         QRect.__name__: [
-            lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float32"),
+            lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float64"),
             lambda x: QRect(int(x[0]), int(x[1]), int(x[2]), int(x[3]))
         ],
         QRectF.__name__: [
-            lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float32"),
-            lambda x: QRect(float(x[0]), float(x[1]), float(x[2]), float(x[3]))
+            lambda x: numpy.array((x.x(), x.y(), x.width(), x.height()), dtype="float64"),
+            lambda x: QRectF(float(x[0]), float(x[1]), float(x[2]), float(x[3]))
         ],
         QColor.__name__: [
-            lambda x: numpy.array(x.getRgb(), dtype="float32"),
+            lambda x: numpy.array(x.getRgb(), dtype="float64"),
             lambda x: QColor(int(x[0]), int(x[1]), int(x[2]), int(x[3]))
         ]
     }
@@ -491,12 +491,13 @@ class SiExpAnimationRefactor(QAbstractAnimation):
     def startAfter(self, msec: int):
         self.start_after_timer.singleShot(msec, self.start)
 
-    def update(self):
+    def fromProperty(self):
+        """ load value from target's property """
         self.setCurrentValue(self._target.property(self._property_name))
 
-    def updateAndStart(self):
-        self.update()
-        self.start()
+    def toProperty(self):
+        """ set target's property to animation value """
+        self._target.setProperty(self._property_name, self._out_func(self._current_value))
 
     def setPropertyName(self, name: str) -> None:
         self._property_name = name
@@ -551,4 +552,4 @@ class SiExpAnimationRefactor(QAbstractAnimation):
             self._out_func = TypeConversionFuncs.functions.get(self._property_type.__name__)[1]
         else:
             self._in_func = lambda x: numpy.array(x)
-            self._out_func = lambda x: self._property_type(numpy.array(x, dtype="float32"))
+            self._out_func = lambda x: self._property_type(numpy.array(x, dtype="float64"))

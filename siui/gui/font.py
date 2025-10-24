@@ -17,13 +17,15 @@ class SiFont:
     or use tokenized global fonts to quickly create fonts.
     """
 
+    Weight = QFont.Weight
+
     @staticmethod
     def getFont(
-        families: Sequence[str] = ["Segoe UI", "Microsoft YaHei", "San Francisco Fonts", "PingFang SC"]
-        or ["Segoe UI", "Microsoft YaHei", "San Francisco Fonts", "PingFang SC"],
+        families=None,
         size: int = 14,
         weight: QFont.Weight = QFont.Weight.Normal,
         italic: bool = False,
+        hinting_preference: QFont.HintingPreference = QFont.PreferFullHinting,
     ) -> QFont:
         """Low-level API for creating font instance
 
@@ -35,16 +37,27 @@ class SiFont:
             - size: 字体大小
             - weight: 字体粗细
             - italic: 是否斜体
+            - hinting_preference: 字体 Hinting 偏好， 默认为 PreferFullHinting
 
         Returns:
             - QFont: 字体实例
 
         """
+        if families is None:
+            families = qApp.font().families() or [
+                "Segoe UI",
+                "Microsoft YaHei",
+                "San Francisco Fonts",
+                ".PingFang TC",
+                "PingFang SC",
+            ]
+
         font = QFont()
         font.setFamilies(families)
         font.setPixelSize(size)
         font.setWeight(weight)
         font.setItalic(italic)
+        font.setHintingPreference(hinting_preference)
         return font
 
     @staticmethod
