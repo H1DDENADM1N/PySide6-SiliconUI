@@ -28,8 +28,6 @@ To quick start, run:
 .\.venv\Scripts\activate.ps1
 python ".\examples\Gallery for siui\start.py"
 ```
-examples/Gallery for siui/start.py
-```
 
 ### Refactoring Plan
 
